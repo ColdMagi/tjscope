@@ -1,5 +1,6 @@
 import {
   Avatar,
+  Divider,
   Heading,
   HStack,
   SimpleGrid,
@@ -34,8 +35,17 @@ function Overview() {
   } = data;
 
   return (
-    <VStack divider={<StackDivider />} maxW="438px">
-      <HStack spacing={10}>
+    <>
+      <HStack
+        spacing={10}
+        position="sticky"
+        top="0"
+        bg="white"
+        zIndex="1000"
+        pt="5"
+        pb="2"
+        px="4"
+      >
         <Avatar
           name={subsite.name}
           size="2xl"
@@ -54,45 +64,48 @@ function Overview() {
           </HStack>
         </VStack>
       </HStack>
-      <VStack divider={<StackDivider />}>
-        <SimpleGrid columns={4} spacing={3}>
-          <Stat>
-            <StatLabel>Постов</StatLabel>
-            <StatNumber>{subsite.counters.entries}</StatNumber>
-          </Stat>
-          <Stat>
-            <StatLabel>Комментариев</StatLabel>
-            <StatNumber>{subsite.counters.comments}</StatNumber>
-          </Stat>
-          <Stat>
-            <StatLabel>Подписок</StatLabel>
-            <StatNumber>{subsite.counters.subscriptions}</StatNumber>
-          </Stat>
-          <Stat>
-            <StatLabel>Подписчиков</StatLabel>
-            <StatNumber>{subsite.counters.subscribers}</StatNumber>
-          </Stat>
-        </SimpleGrid>
+      <Divider maxW="438px" />
+      <VStack divider={<StackDivider />} maxW="438px">
+        <VStack divider={<StackDivider />}>
+          <SimpleGrid columns={4} spacing={3}>
+            <Stat>
+              <StatLabel>Постов</StatLabel>
+              <StatNumber>{subsite.counters.entries}</StatNumber>
+            </Stat>
+            <Stat>
+              <StatLabel>Комментариев</StatLabel>
+              <StatNumber>{subsite.counters.comments}</StatNumber>
+            </Stat>
+            <Stat>
+              <StatLabel>Подписок</StatLabel>
+              <StatNumber>{subsite.counters.subscriptions}</StatNumber>
+            </Stat>
+            <Stat>
+              <StatLabel>Подписчиков</StatLabel>
+              <StatNumber>{subsite.counters.subscribers}</StatNumber>
+            </Stat>
+          </SimpleGrid>
 
-        <SimpleGrid
-          columns={2}
-          spacing={3}
-          justifyContent="space-between"
-          minW="100%"
-        >
-          <Stat>
-            <StatLabel>Plus</StatLabel>
-            <StatNumber>{<BooleanText value={subsite.isPlus} />}</StatNumber>
-          </Stat>
-          <Stat>
-            <StatLabel>Подтвержден</StatLabel>
-            <StatNumber>
-              {<BooleanText value={subsite.isVerified} />}
-            </StatNumber>
-          </Stat>
-        </SimpleGrid>
+          <SimpleGrid
+            columns={2}
+            spacing={3}
+            justifyContent="space-between"
+            minW="100%"
+          >
+            <Stat>
+              <StatLabel>Plus</StatLabel>
+              <StatNumber>{<BooleanText value={subsite.isPlus} />}</StatNumber>
+            </Stat>
+            <Stat>
+              <StatLabel>Подтвержден</StatLabel>
+              <StatNumber>
+                {<BooleanText value={subsite.isVerified} />}
+              </StatNumber>
+            </Stat>
+          </SimpleGrid>
+        </VStack>
       </VStack>
-    </VStack>
+    </>
   );
 }
 
