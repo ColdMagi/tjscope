@@ -7,7 +7,10 @@ import {
   InputGroup,
   InputRightElement,
 } from "@chakra-ui/react";
+import { lazy } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+
+const Scope = lazy(() => import("./pages/Scope"));
 
 function Start() {
   return (
@@ -41,6 +44,7 @@ function App() {
 
           <Routes>
             <Route path="/" element={<Start />} />
+            <Route path="/scope" element={<Scope />} />
           </Routes>
         </Container>
       </BrowserRouter>
