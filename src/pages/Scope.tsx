@@ -14,7 +14,7 @@ import EntryCard from "components/scope/EntryCard";
 import RatingView from "components/scope/RatingView";
 import { format } from "date-fns";
 import { useApi } from "hooks/useFetch";
-import { useMemo } from "react";
+import { PropsWithChildren, useMemo } from "react";
 import { useContext } from "react";
 import { createContext } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -96,6 +96,15 @@ function Overview() {
   );
 }
 
+function StatCat({ label, children }: PropsWithChildren<{ label: string }>) {
+  return (
+    <VStack align="flex-start" minW="100%">
+      <Heading size="md">{label}</Heading>
+      {children}
+    </VStack>
+  );
+}
+
 function Entries() {
   const id = useScope();
   const { data } = useApi<Osnova.Entry.EntriesResponse>(
@@ -116,7 +125,9 @@ function Entries() {
       comments: 0,
       reposts: 0,
       hits: 0,
-      mostHitsEntry: ownEntries[0],
+      mostHits: ownEntries[0],
+      mostLiked: ownEntries[0],
+      mostDisliked: ownEntries[0],
     };
     for (const entry of ownEntries) {
       result.rating += entry.likes.summ;
@@ -124,8 +135,17 @@ function Entries() {
       result.comments += entry.commentsCount;
       result.reposts += Number(entry.isRepost);
       result.hits += entry.hitsCount;
-      if (entry.hitsCount > result.mostHitsEntry.hitsCount) {
-        result.mostHitsEntry = entry;
+      if (entry.hitsCount > result.mostHits.hitsCount) {
+        result.mostHits = entry;
+      }
+      if (entry.likes.summ > result.mostLiked.likes.summ) {
+        result.mostLiked = entry;
+      }
+      if (
+        entry.likes.count - entry.likes.summ >
+        result.mostDisliked.likes.count - result.mostDisliked.likes.summ
+      ) {
+        result.mostDisliked = entry;
       }
     }
     return result;
@@ -137,7 +157,7 @@ function Entries() {
     <VStack align="flex-start" divider={<StackDivider />} w="100%" maxW="438px">
       <Heading>Посты</Heading>
 
-      <VStack align="flex-start" w="100%" pl="2">
+      <VStack align="flex-start" w="100%" pl="2" spacing={4}>
         <SimpleGrid
           columns={2}
           spacing={1}
@@ -163,11 +183,22 @@ function Entries() {
           </Stat>
         </SimpleGrid>
 
-        {stats.mostHitsEntry && (
-          <VStack align="flex-start">
-            <Heading size="md">Наиболее просматриваемый</Heading>
-            <EntryCard entry={stats.mostHitsEntry} />
-          </VStack>
+        {stats.mostHits && (
+          <StatCat label="Наиболее просматриваемый">
+            <EntryCard entry={stats.mostHits} />
+          </StatCat>
+        )}
+
+        {stats.mostLiked && (
+          <StatCat label="Наибольшее количество плюсов">
+            <EntryCard entry={stats.mostLiked} />
+          </StatCat>
+        )}
+
+        {stats.mostDisliked && (
+          <StatCat label="Наибольшее количество минусов">
+            <EntryCard entry={stats.mostDisliked} />
+          </StatCat>
         )}
       </VStack>
     </VStack>
