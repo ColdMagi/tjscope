@@ -1,6 +1,5 @@
 import {
   Avatar,
-  Divider,
   Heading,
   HStack,
   SimpleGrid,
