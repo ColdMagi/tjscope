@@ -1,7 +1,6 @@
 import {
   Avatar,
   Box,
-  Divider,
   Heading,
   HStack,
   SimpleGrid,
@@ -13,6 +12,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import BooleanText from "components/atoms/BooleanText";
+import RatingView from "components/scope/RatingView";
 import { format } from "date-fns";
 import { useApi } from "hooks/useFetch";
 import { useMemo } from "react";
@@ -45,10 +45,7 @@ function Overview() {
         <VStack>
           <Heading size="lg">{subsite.name}</Heading>
           <HStack justifyContent={"space-between"} minW="100%">
-            <Stat>
-              <StatLabel>Рейтинг</StatLabel>
-              <StatNumber color="gray.500">{subsite.rating}</StatNumber>
-            </Stat>
+            <RatingView>{subsite.rating}</RatingView>
             <Stat>
               <StatLabel>Создан</StatLabel>
               <StatNumber>
@@ -148,20 +145,11 @@ function Entries() {
           justifyContent="space-between"
           minW="100%"
         >
-          <Stat>
-            <StatLabel>Рейтинг</StatLabel>
-            <StatNumber color="gray.500">{stats.rating}</StatNumber>
-          </Stat>
-          <Stat>
-            <StatLabel>Оценок</StatLabel>
-            <StatNumber color="gray.500">{stats.ratingCount}</StatNumber>
-          </Stat>
-          <Stat>
-            <StatLabel>Оценки [минус]</StatLabel>
-            <StatNumber color="gray.500">
-              {stats.ratingCount - stats.rating}
-            </StatNumber>
-          </Stat>
+          <RatingView>{stats.rating}</RatingView>
+          <RatingView label="Оценок">{stats.ratingCount}</RatingView>
+          <RatingView label="Оценки [минус]">
+            {stats.ratingCount - stats.rating}
+          </RatingView>
           <Stat>
             <StatLabel>Комментариев</StatLabel>
             <StatNumber>{stats.comments}</StatNumber>
