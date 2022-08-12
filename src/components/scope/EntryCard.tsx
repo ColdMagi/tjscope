@@ -12,6 +12,7 @@ function EntryCard({
     hitsCount,
     intro,
     date,
+    likes: { count, summ },
     subsite: { avatar_url, name },
   },
 }: EntryCardProps) {
@@ -41,9 +42,15 @@ function EntryCard({
       <VStack pl="8">
         <Text>{intro}</Text>
       </VStack>
-      <Text pl="8" color="gray.400">
-        {hitsCount} просмотров
-      </Text>
+      <HStack justifyContent="space-between" minW="100%">
+        <Text pl="8" color="gray.400">
+          {hitsCount} просмотров
+        </Text>
+        <HStack>
+          <Text color="red.300">{count - summ}</Text>
+          <Text color="green.300">{summ}</Text>
+        </HStack>
+      </HStack>
     </VStack>
   );
 }
