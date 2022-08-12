@@ -131,7 +131,7 @@ function Entries() {
   return (
     <VStack align="flex-start" w="100%" pl="2" spacing={4}>
       <SimpleGrid
-        columns={2}
+        columns={3}
         spacing={1}
         justifyContent="space-between"
         minW="100%"
