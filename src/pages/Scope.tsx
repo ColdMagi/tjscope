@@ -30,87 +30,44 @@ import { getTargetId } from "utils/common";
 const Context = createContext(0);
 const useScope = () => useContext(Context);
 
-function Overview() {
-  const id = useScope();
-  const { data } = useApi<Osnova.Subsite.SubsiteResponse>(`/subsite?id=${id}`);
-
-  if (!data || !data.result) return null;
-  const {
-    result: { subsite },
-  } = data;
-
+function Overview({ subsite }: { subsite: Osnova.Subsite.Subsite }) {
   return (
-    <>
-      <HStack
-        spacing={10}
-        position="sticky"
-        top="0"
-        bg="white"
-        zIndex="1000"
-        pt="5"
-        pb="2"
-        px="4"
-      >
-        <Avatar
-          name={subsite.name}
-          size="2xl"
-          src={`https://leonardo.osnova.io/${subsite.avatar.data.uuid}/-/scale_crop/300x300/-/format/webp/`}
-        />
-        <VStack>
-          <Heading size="lg">{subsite.name}</Heading>
-          <HStack justifyContent={"space-between"} minW="100%">
-            <RatingView>{subsite.rating}</RatingView>
-            <Stat>
-              <StatLabel>Создан</StatLabel>
-              <StatNumber>
-                {format(subsite.created * 1000, "dd.LL.yy")}
-              </StatNumber>
-            </Stat>
-          </HStack>
-        </VStack>
-      </HStack>
-      <Divider w="438px" />
-      <VStack divider={<StackDivider />} w="438px">
-        <VStack divider={<StackDivider />}>
-          <SimpleGrid columns={4} spacing={3}>
-            <Stat>
-              <StatLabel>Постов</StatLabel>
-              <StatNumber>{subsite.counters.entries}</StatNumber>
-            </Stat>
-            <Stat>
-              <StatLabel>Комментариев</StatLabel>
-              <StatNumber>{subsite.counters.comments}</StatNumber>
-            </Stat>
-            <Stat>
-              <StatLabel>Подписок</StatLabel>
-              <StatNumber>{subsite.counters.subscriptions}</StatNumber>
-            </Stat>
-            <Stat>
-              <StatLabel>Подписчиков</StatLabel>
-              <StatNumber>{subsite.counters.subscribers}</StatNumber>
-            </Stat>
-          </SimpleGrid>
+    <VStack divider={<StackDivider />}>
+      <SimpleGrid columns={4} spacing={3}>
+        <Stat>
+          <StatLabel>Постов</StatLabel>
+          <StatNumber>{subsite.counters.entries}</StatNumber>
+        </Stat>
+        <Stat>
+          <StatLabel>Комментариев</StatLabel>
+          <StatNumber>{subsite.counters.comments}</StatNumber>
+        </Stat>
+        <Stat>
+          <StatLabel>Подписок</StatLabel>
+          <StatNumber>{subsite.counters.subscriptions}</StatNumber>
+        </Stat>
+        <Stat>
+          <StatLabel>Подписчиков</StatLabel>
+          <StatNumber>{subsite.counters.subscribers}</StatNumber>
+        </Stat>
+      </SimpleGrid>
 
-          <SimpleGrid
-            columns={2}
-            spacing={3}
-            justifyContent="space-between"
-            minW="100%"
-          >
-            <Stat>
-              <StatLabel>Plus</StatLabel>
-              <StatNumber>{<BooleanText value={subsite.isPlus} />}</StatNumber>
-            </Stat>
-            <Stat>
-              <StatLabel>Подтвержден</StatLabel>
-              <StatNumber>
-                {<BooleanText value={subsite.isVerified} />}
-              </StatNumber>
-            </Stat>
-          </SimpleGrid>
-        </VStack>
-      </VStack>
-    </>
+      <SimpleGrid
+        columns={2}
+        spacing={3}
+        justifyContent="space-between"
+        minW="100%"
+      >
+        <Stat>
+          <StatLabel>Plus</StatLabel>
+          <StatNumber>{<BooleanText value={subsite.isPlus} />}</StatNumber>
+        </Stat>
+        <Stat>
+          <StatLabel>Подтвержден</StatLabel>
+          <StatNumber>{<BooleanText value={subsite.isVerified} />}</StatNumber>
+        </Stat>
+      </SimpleGrid>
+    </VStack>
   );
 }
 
@@ -232,17 +189,55 @@ function Scope() {
   const [searchParams] = useSearchParams();
   const id = getTargetId(searchParams.get("id") || "");
 
+  const { data } = useApi<Osnova.Subsite.SubsiteResponse>(`/subsite?id=${id}`);
+
+  if (!data || !data.result) return null;
+  const {
+    result: { subsite },
+  } = data;
+
   return (
     <Context.Provider value={id}>
       <VStack align="start">
-        <Overview />
+        <HStack
+          spacing={10}
+          position="sticky"
+          top="0"
+          bg="white"
+          zIndex="1000"
+          pt="5"
+          pb="2"
+          px="4"
+        >
+          <Avatar
+            name={subsite.name}
+            size="2xl"
+            src={`https://leonardo.osnova.io/${subsite.avatar.data.uuid}/-/scale_crop/300x300/-/format/webp/`}
+          />
+          <VStack>
+            <Heading size="lg">{subsite.name}</Heading>
+            <HStack justifyContent={"space-between"} minW="100%">
+              <RatingView>{subsite.rating}</RatingView>
+              <Stat>
+                <StatLabel>Создан</StatLabel>
+                <StatNumber>
+                  {format(subsite.created * 1000, "dd.LL.yy")}
+                </StatNumber>
+              </Stat>
+            </HStack>
+          </VStack>
+        </HStack>
 
         <Tabs variant={"enclosed"}>
           <TabList>
+            <Tab>Обзор</Tab>
             <Tab>Посты</Tab>
             <Tab>Комментарии</Tab>
           </TabList>
           <TabPanels>
+            <TabPanel>
+              <Overview subsite={subsite} />
+            </TabPanel>
             <TabPanel>
               <VStack
                 align="flex-start"
