@@ -1,4 +1,4 @@
-import { Avatar, Heading, HStack, Text, VStack } from "@chakra-ui/react";
+import { Avatar, Heading, HStack, Image, Text, VStack } from "@chakra-ui/react";
 import { format } from "date-fns";
 import { Osnova } from "types/osnova";
 
@@ -13,6 +13,7 @@ function EntryCard({
     intro,
     date,
     likes: { count, summ },
+    cover,
     subsite: { avatar_url, name },
   },
 }: EntryCardProps) {
@@ -41,6 +42,14 @@ function EntryCard({
       </HStack>
       <VStack pl="8">
         <Text>{intro}</Text>
+        {cover && (
+          <Image
+            src={cover.thumbnailUrl}
+            alt=""
+            objectFit={"contain"}
+            pointerEvents={"none"}
+          />
+        )}
       </VStack>
       <HStack justifyContent="space-between" minW="100%">
         <Text pl="8" color="gray.400">
