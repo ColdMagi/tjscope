@@ -1,6 +1,5 @@
 import {
   Avatar,
-  Box,
   Heading,
   HStack,
   SimpleGrid,
@@ -8,10 +7,10 @@ import {
   Stat,
   StatLabel,
   StatNumber,
-  Text,
   VStack,
 } from "@chakra-ui/react";
 import BooleanText from "components/atoms/BooleanText";
+import EntryCard from "components/scope/EntryCard";
 import RatingView from "components/scope/RatingView";
 import { format } from "date-fns";
 import { useApi } from "hooks/useFetch";
@@ -117,7 +116,7 @@ function Entries() {
       comments: 0,
       reposts: 0,
       hits: 0,
-      mostHitsEntry: { url: "", hits: 0 },
+      mostHitsEntry: ownEntries[0],
     };
     for (const entry of ownEntries) {
       result.rating += entry.likes.summ;
@@ -125,8 +124,8 @@ function Entries() {
       result.comments += entry.commentsCount;
       result.reposts += Number(entry.isRepost);
       result.hits += entry.hitsCount;
-      if (entry.hitsCount > result.mostHitsEntry.hits) {
-        result.mostHitsEntry = { url: entry.url, hits: entry.hitsCount };
+      if (entry.hitsCount > result.mostHitsEntry.hitsCount) {
+        result.mostHitsEntry = entry;
       }
     }
     return result;
@@ -164,9 +163,12 @@ function Entries() {
           </Stat>
         </SimpleGrid>
 
-        <Box>
-          <Heading size="md">Самый просматриваемый за все время</Heading>
-        </Box>
+        {stats.mostHitsEntry && (
+          <VStack align="flex-start">
+            <Heading size="md">Наиболее просматриваемый</Heading>
+            <EntryCard entry={stats.mostHitsEntry} />
+          </VStack>
+        )}
       </VStack>
     </VStack>
   );
