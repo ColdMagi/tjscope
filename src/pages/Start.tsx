@@ -10,7 +10,7 @@ function Start() {
   const nav = useNavigate();
 
   const handleClick = () => {
-    nav(`/scope?t=${getTargetId(target)}`);
+    nav(`/scope?id=${getTargetId(target)}`);
   };
 
   return (
