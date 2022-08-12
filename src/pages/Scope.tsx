@@ -125,8 +125,6 @@ function Entries() {
     return result;
   }, [ownEntries]);
 
-  console.log(ownEntries);
-
   return (
     <VStack align="flex-start" w="100%" pl="2" spacing={4}>
       <SimpleGrid
@@ -177,11 +175,66 @@ function Entries() {
 
 function Comments() {
   const id = useScope();
-  const { data } = useApi(`/user/${id}/comments`, undefined, "1.9");
+  const { data } = useApi<Osnova.Comment.CommentsResponse>(
+    `/user/${id}/comments`,
+    undefined,
+    "1.9"
+  );
 
   console.log(data);
 
-  return <VStack align="flex-start" w="100%" pl="2" spacing={4}></VStack>;
+  const own = useMemo(
+    () => (data ? data.result.filter((e) => e.author.id === id) : []),
+    [data, id]
+  );
+
+  const stats = useMemo(() => {
+    const result = {
+      rating: 0,
+      ratingCount: 0,
+      mostLiked: own[0],
+      mostDisliked: own[0],
+    };
+    for (const entry of own) {
+      result.rating += entry.likes.summ;
+      result.ratingCount += entry.likes.count;
+      if (entry.likes.summ > result.mostLiked.likes.summ) {
+        result.mostLiked = entry;
+      }
+      if (
+        entry.likes.count - entry.likes.summ >
+        result.mostDisliked.likes.count - result.mostDisliked.likes.summ
+      ) {
+        result.mostDisliked = entry;
+      }
+    }
+    return result;
+  }, [own]);
+
+  return (
+    <VStack align="flex-start" w="100%" pl="2" spacing={4}>
+      <SimpleGrid
+        columns={3}
+        spacing={1}
+        justifyContent="space-between"
+        minW="100%"
+      >
+        <RatingView>{stats.rating}</RatingView>
+        <RatingView label="Оценок">{stats.ratingCount}</RatingView>
+        <RatingView label="Оценки [минус]">
+          {stats.ratingCount - stats.rating}
+        </RatingView>
+      </SimpleGrid>
+
+      {stats.mostLiked && (
+        <StatCat label="Наибольшее количество плюсов"></StatCat>
+      )}
+
+      {stats.mostDisliked && (
+        <StatCat label="Наибольшее количество минусов"></StatCat>
+      )}
+    </VStack>
+  );
 }
 
 function Scope() {
