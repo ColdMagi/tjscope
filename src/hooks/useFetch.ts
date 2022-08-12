@@ -1,6 +1,5 @@
 import { useApiContext } from "contexts/Api";
 import { useEffect, useReducer, useRef } from "react";
-import useUserAgent from "./useUserAgent";
 
 interface State<T> {
   data?: T;
@@ -99,11 +98,7 @@ function useFetch<T = unknown>(url?: string, options?: RequestInit): State<T> {
 
 function useApi<T = unknown>(url?: string, options?: RequestInit): State<T> {
   const api = useApiContext();
-  const userAgent = useUserAgent();
-  return useFetch<T>(url ? `${api}${url}` : url, {
-    ...(options || {}),
-    headers: { ...userAgent, ...(options || { headers: {} }).headers },
-  });
+  return useFetch<T>(url ? `${api}${url}` : url, options);
 }
 
 export { useApi };
