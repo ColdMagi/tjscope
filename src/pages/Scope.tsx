@@ -8,6 +8,11 @@ import {
   Stat,
   StatLabel,
   StatNumber,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
   VStack,
 } from "@chakra-ui/react";
 import BooleanText from "components/atoms/BooleanText";
@@ -64,8 +69,8 @@ function Overview() {
           </HStack>
         </VStack>
       </HStack>
-      <Divider maxW="438px" />
-      <VStack divider={<StackDivider />} maxW="438px">
+      <Divider w="438px" />
+      <VStack divider={<StackDivider />} w="438px">
         <VStack divider={<StackDivider />}>
           <SimpleGrid columns={4} spacing={3}>
             <Stat>
@@ -167,55 +172,60 @@ function Entries() {
   console.log(ownEntries);
 
   return (
-    <VStack align="flex-start" divider={<StackDivider />} w="100%" maxW="438px">
-      <Heading>Посты</Heading>
+    <VStack align="flex-start" w="100%" pl="2" spacing={4}>
+      <SimpleGrid
+        columns={2}
+        spacing={1}
+        justifyContent="space-between"
+        minW="100%"
+      >
+        <RatingView>{stats.rating}</RatingView>
+        <RatingView label="Оценок">{stats.ratingCount}</RatingView>
+        <RatingView label="Оценки [минус]">
+          {stats.ratingCount - stats.rating}
+        </RatingView>
+        <Stat>
+          <StatLabel>Комментариев</StatLabel>
+          <StatNumber>{stats.comments}</StatNumber>
+        </Stat>
+        <Stat>
+          <StatLabel>Просмотров</StatLabel>
+          <StatNumber>{stats.hits}</StatNumber>
+        </Stat>
+        <Stat>
+          <StatLabel>Репостов</StatLabel>
+          <StatNumber>{stats.reposts}</StatNumber>
+        </Stat>
+      </SimpleGrid>
 
-      <VStack align="flex-start" w="100%" pl="2" spacing={4}>
-        <SimpleGrid
-          columns={2}
-          spacing={1}
-          justifyContent="space-between"
-          minW="100%"
-        >
-          <RatingView>{stats.rating}</RatingView>
-          <RatingView label="Оценок">{stats.ratingCount}</RatingView>
-          <RatingView label="Оценки [минус]">
-            {stats.ratingCount - stats.rating}
-          </RatingView>
-          <Stat>
-            <StatLabel>Комментариев</StatLabel>
-            <StatNumber>{stats.comments}</StatNumber>
-          </Stat>
-          <Stat>
-            <StatLabel>Просмотров</StatLabel>
-            <StatNumber>{stats.hits}</StatNumber>
-          </Stat>
-          <Stat>
-            <StatLabel>Репостов</StatLabel>
-            <StatNumber>{stats.reposts}</StatNumber>
-          </Stat>
-        </SimpleGrid>
+      {stats.mostHits && (
+        <StatCat label="Наиболее просматриваемый">
+          <EntryCard entry={stats.mostHits} />
+        </StatCat>
+      )}
 
-        {stats.mostHits && (
-          <StatCat label="Наиболее просматриваемый">
-            <EntryCard entry={stats.mostHits} />
-          </StatCat>
-        )}
+      {stats.mostLiked && (
+        <StatCat label="Наибольшее количество плюсов">
+          <EntryCard entry={stats.mostLiked} />
+        </StatCat>
+      )}
 
-        {stats.mostLiked && (
-          <StatCat label="Наибольшее количество плюсов">
-            <EntryCard entry={stats.mostLiked} />
-          </StatCat>
-        )}
-
-        {stats.mostDisliked && (
-          <StatCat label="Наибольшее количество минусов">
-            <EntryCard entry={stats.mostDisliked} />
-          </StatCat>
-        )}
-      </VStack>
+      {stats.mostDisliked && (
+        <StatCat label="Наибольшее количество минусов">
+          <EntryCard entry={stats.mostDisliked} />
+        </StatCat>
+      )}
     </VStack>
   );
+}
+
+function Comments() {
+  const id = useScope();
+  const { data } = useApi(`/user/${id}/comments`, undefined, "1.9");
+
+  console.log(data);
+
+  return <VStack align="flex-start" w="100%" pl="2" spacing={4}></VStack>;
 }
 
 function Scope() {
@@ -226,7 +236,35 @@ function Scope() {
     <Context.Provider value={id}>
       <VStack align="start">
         <Overview />
-        <Entries />
+
+        <Tabs variant={"enclosed"}>
+          <TabList>
+            <Tab>Посты</Tab>
+            <Tab>Комментарии</Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel>
+              <VStack
+                align="flex-start"
+                divider={<StackDivider />}
+                w="100%"
+                maxW="438px"
+              >
+                <Entries />
+              </VStack>
+            </TabPanel>
+            <TabPanel>
+              <VStack
+                align="flex-start"
+                divider={<StackDivider />}
+                w="100%"
+                maxW="438px"
+              >
+                <Comments />
+              </VStack>
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
       </VStack>
     </Context.Provider>
   );
