@@ -96,9 +96,13 @@ function useFetch<T = unknown>(url?: string, options?: RequestInit): State<T> {
   return state;
 }
 
-function useApi<T = unknown>(url?: string, options?: RequestInit): State<T> {
+function useApi<T = unknown>(
+  url?: string,
+  options?: RequestInit,
+  apiV = "2.31"
+): State<T> {
   const api = useApiContext();
-  return useFetch<T>(url ? `${api}${url}` : url, options);
+  return useFetch<T>(url ? `${api.replace("2.31", apiV)}${url}` : url, options);
 }
 
 export { useApi };

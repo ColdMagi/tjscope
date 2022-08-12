@@ -99,14 +99,24 @@ function Overview() {
   );
 }
 
+function Entries() {
+  const id = useScope();
+  const { data } = useApi(`/user/${id}/entries`, undefined, "1.9");
+
+  console.log(data);
+
+  return null;
+}
+
 function Scope() {
   const [searchParams] = useSearchParams();
   const id = getTargetId(searchParams.get("id") || "");
 
   return (
     <Context.Provider value={id}>
-      <VStack align="start">
+      <VStack divider={<StackDivider />} align="start">
         <Overview />
+        <Entries />
       </VStack>
     </Context.Provider>
   );
