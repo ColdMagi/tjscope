@@ -1,5 +1,6 @@
 import {
   Avatar,
+  Box,
   Divider,
   Heading,
   HStack,
@@ -8,11 +9,13 @@ import {
   Stat,
   StatLabel,
   StatNumber,
+  Text,
   VStack,
 } from "@chakra-ui/react";
 import BooleanText from "components/atoms/BooleanText";
 import { format } from "date-fns";
 import { useApi } from "hooks/useFetch";
+import { useMemo } from "react";
 import { useContext } from "react";
 import { createContext } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -31,10 +34,8 @@ function Overview() {
     result: { subsite },
   } = data;
 
-  console.log(subsite);
-
   return (
-    <VStack divider={<StackDivider />}>
+    <VStack divider={<StackDivider />} maxW="438px">
       <HStack spacing={10}>
         <Avatar
           name={subsite.name}
@@ -101,11 +102,86 @@ function Overview() {
 
 function Entries() {
   const id = useScope();
-  const { data } = useApi(`/user/${id}/entries`, undefined, "1.9");
+  const { data } = useApi<Osnova.Entry.EntriesResponse>(
+    `/user/${id}/entries`,
+    undefined,
+    "1.9"
+  );
 
-  console.log(data);
+  const ownEntries = useMemo(
+    () => (data ? data.result.filter((e) => e.author.id === id) : []),
+    [data, id]
+  );
 
-  return null;
+  const stats = useMemo(() => {
+    const result = {
+      rating: 0,
+      ratingCount: 0,
+      comments: 0,
+      reposts: 0,
+      hits: 0,
+      mostHitsEntry: { url: "", hits: 0 },
+    };
+    for (const entry of ownEntries) {
+      result.rating += entry.likes.summ;
+      result.ratingCount += entry.likes.count;
+      result.comments += entry.commentsCount;
+      result.reposts += Number(entry.isRepost);
+      result.hits += entry.hitsCount;
+      if (entry.hitsCount > result.mostHitsEntry.hits) {
+        result.mostHitsEntry = { url: entry.url, hits: entry.hitsCount };
+      }
+    }
+    return result;
+  }, [ownEntries]);
+
+  console.log(ownEntries);
+
+  return (
+    <VStack align="flex-start" divider={<StackDivider />} w="100%" maxW="438px">
+      <Heading>Посты</Heading>
+
+      <VStack align="flex-start" w="100%" pl="2">
+        <SimpleGrid
+          columns={2}
+          spacing={1}
+          justifyContent="space-between"
+          minW="100%"
+        >
+          <Stat>
+            <StatLabel>Рейтинг</StatLabel>
+            <StatNumber color="gray.500">{stats.rating}</StatNumber>
+          </Stat>
+          <Stat>
+            <StatLabel>Оценок</StatLabel>
+            <StatNumber color="gray.500">{stats.ratingCount}</StatNumber>
+          </Stat>
+          <Stat>
+            <StatLabel>Оценки [минус]</StatLabel>
+            <StatNumber color="gray.500">
+              {stats.ratingCount - stats.rating}
+            </StatNumber>
+          </Stat>
+          <Stat>
+            <StatLabel>Комментариев</StatLabel>
+            <StatNumber>{stats.comments}</StatNumber>
+          </Stat>
+          <Stat>
+            <StatLabel>Просмотров</StatLabel>
+            <StatNumber>{stats.hits}</StatNumber>
+          </Stat>
+          <Stat>
+            <StatLabel>Репостов</StatLabel>
+            <StatNumber>{stats.reposts}</StatNumber>
+          </Stat>
+        </SimpleGrid>
+
+        <Box>
+          <Heading size="md">Самый просматриваемый за все время</Heading>
+        </Box>
+      </VStack>
+    </VStack>
+  );
 }
 
 function Scope() {
@@ -114,7 +190,7 @@ function Scope() {
 
   return (
     <Context.Provider value={id}>
-      <VStack divider={<StackDivider />} align="start">
+      <VStack align="start">
         <Overview />
         <Entries />
       </VStack>
