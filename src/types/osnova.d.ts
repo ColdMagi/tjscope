@@ -11,7 +11,7 @@ namespace Osnova {
       type: number;
       name: string;
       description: string;
-      avatar: Avatar;
+      avatar: { type: string; data: Avatar };
       cover: Avatar;
       created: number;
       url: string;
