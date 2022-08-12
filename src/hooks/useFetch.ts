@@ -1,3 +1,4 @@
+import { useApiContext } from "contexts/Api";
 import { useEffect, useReducer, useRef } from "react";
 import useUserAgent from "./useUserAgent";
 
@@ -25,8 +26,6 @@ type Action<T> =
  */
 function useFetch<T = unknown>(url?: string, options?: RequestInit): State<T> {
   const cache = useRef<Cache<T>>({});
-  // TODO: remove for flexible
-  const userAgent = useUserAgent();
 
   // Used to prevent state update if the component is unmounted
   const cancelRequest = useRef<boolean>(false);
@@ -68,10 +67,7 @@ function useFetch<T = unknown>(url?: string, options?: RequestInit): State<T> {
       }
 
       try {
-        const response = await fetch(url, {
-          ...(options || {}),
-          headers: { ...(options || { headers: {} }).headers, ...userAgent },
-        });
+        const response = await fetch(url, options);
         if (!response.ok) {
           throw new Error(response.statusText);
         }
@@ -101,4 +97,14 @@ function useFetch<T = unknown>(url?: string, options?: RequestInit): State<T> {
   return state;
 }
 
+function useApi<T = unknown>(url?: string, options?: RequestInit): State<T> {
+  const api = useApiContext();
+  const userAgent = useUserAgent();
+  return useFetch<T>(url ? `${api}${url}` : url, {
+    ...(options || {}),
+    headers: { ...userAgent, ...(options || { headers: {} }).headers },
+  });
+}
+
+export { useApi };
 export default useFetch;
