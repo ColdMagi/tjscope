@@ -257,6 +257,9 @@ function ShowRatingPlusMinus({
       <Text fontSize="16px" as="span" color="red.300">
         {minus}
       </Text>
+      <Text fontSize="16px" as="span" color="gray.500">
+        {plus + minus ?? "N/A"}
+      </Text>
     </HStack>
   );
 }
@@ -439,12 +442,7 @@ function Total({ comments }: TotalProps) {
               />
             </StatNumber>
             <StatHelpText pl="14">
-              <HStack alignItems="center">
-                <ShowRatingPlusMinus source={commentStats.total} />
-                <Text fontSize="16px" color="gray.500">
-                  {commentStats.total.minus + commentStats.total.plus ?? "N/A"}
-                </Text>
-              </HStack>
+              <ShowRatingPlusMinus source={commentStats.total} />
             </StatHelpText>
           </Stat>
         )}
