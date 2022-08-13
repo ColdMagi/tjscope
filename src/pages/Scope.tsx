@@ -2,6 +2,7 @@ import {
   Avatar,
   Heading,
   HStack,
+  Progress,
   SimpleGrid,
   StackDivider,
   Stat,
@@ -273,48 +274,57 @@ function Total({ comments }: TotalProps) {
       }
       return result;
     });
-    let timeout = setTimeout(() => setCommentIndex((prev) => prev + 1), 50000);
+    let timeout = setTimeout(() => setCommentIndex((prev) => prev + 1), 2000);
     return () => clearTimeout(timeout);
   }, [data]);
 
   return (
-    <TableContainer>
-      <Table variant="simple">
-        <TableCaption>Статистика оценок по пользователям</TableCaption>
-        <Thead>
-          <Tr>
-            <Th>Пользователь</Th>
-            <Th isNumeric>Плюс</Th>
-            <Th isNumeric>Минус</Th>
-            <Th isNumeric>Всего</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {[...Object.entries(commentsLikers)].map(
-            ([id, { name, avatar_url, minus, plus, total }]) => (
-              <Tr key={id}>
-                <Td>
-                  <HStack>
-                    <Avatar name={name} src={avatar_url} />
-                    <Text
-                      as="b"
-                      maxW="200px"
-                      textOverflow={"ellipsis"}
-                      overflow="hidden"
+    <VStack position="relative">
+      {comments?.result?.length > commentIndex && (
+        <Progress size="xs" isIndeterminate w="100%" />
+      )}
+      <TableContainer>
+        <Table variant="simple">
+          <TableCaption>Статистика оценок по пользователям</TableCaption>
+          <Thead>
+            <Tr>
+              <Th>Пользователь</Th>
+              <Th isNumeric>Плюс</Th>
+              <Th isNumeric>Минус</Th>
+              <Th isNumeric>Всего</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {[...Object.entries(commentsLikers)].map(
+              ([id, { name, avatar_url, minus, plus, total }]) => (
+                <Tr key={id}>
+                  <Td>
+                    <HStack
+                      as="a"
+                      href={`https://tjournal.ru/u/${id}`}
+                      target="_blank"
                     >
-                      {name}
-                    </Text>
-                  </HStack>
-                </Td>
-                <Td>{total}</Td>
-                <Td>{minus}</Td>
-                <Td>{plus}</Td>
-              </Tr>
-            )
-          )}
-        </Tbody>
-      </Table>
-    </TableContainer>
+                      <Avatar name={name} src={avatar_url} />
+                      <Text
+                        as="b"
+                        maxW="200px"
+                        textOverflow={"ellipsis"}
+                        overflow="hidden"
+                      >
+                        {name}
+                      </Text>
+                    </HStack>
+                  </Td>
+                  <Td>{total}</Td>
+                  <Td>{minus}</Td>
+                  <Td>{plus}</Td>
+                </Tr>
+              )
+            )}
+          </Tbody>
+        </Table>
+      </TableContainer>
+    </VStack>
   );
 }
 
