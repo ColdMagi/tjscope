@@ -343,9 +343,11 @@ function Total({ comments }: TotalProps) {
 function Header({
   subsite,
   avatar_url,
+  rating,
 }: {
   subsite: Osnova.Subsite.Subsite;
   avatar_url?: string;
+  rating?: number;
 }) {
   return (
     <HStack
@@ -370,7 +372,7 @@ function Header({
       <VStack>
         <Heading size="lg">{subsite.name}</Heading>
         <HStack justifyContent={"space-between"} minW="100%">
-          <RatingView>{subsite.rating}</RatingView>
+          <RatingView>{subsite.rating || rating || "N/A"}</RatingView>
           <Stat>
             <StatLabel>Создан</StatLabel>
             <StatNumber>
@@ -403,6 +405,15 @@ function Scope() {
     "1.9"
   );
 
+  const entriesRating = useMemo(
+    () => entries?.result?.reduce((p, c) => p + c.likes.summ, 0),
+    [entries]
+  );
+  const commentsRating = useMemo(
+    () => comments?.result?.reduce((p, c) => p + c.likes.summ, 0),
+    [comments]
+  );
+
   const {
     result: { subsite },
   } = data || {
@@ -417,17 +428,13 @@ function Scope() {
 
   return (
     <VStack align="start">
-      {error && (
-        <VStack>
-          <Heading>Вероятно профиль закрыт</Heading>
-        </VStack>
-      )}
       <Header
         subsite={subsite}
         avatar_url={
           comments?.result?.at(0)?.author?.avatar_url ||
           entries?.result?.at(0)?.author?.avatar_url
         }
+        rating={entriesRating + commentsRating}
       />
 
       <Tabs variant={"enclosed"}>
