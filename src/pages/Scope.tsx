@@ -292,18 +292,47 @@ function User({
   );
 }
 
+type Liker = { minus: number; plus: number; name: string; avatar_url: string };
+type Likers = Record<string, Liker>;
+
+function TotalTable({ likers }: { likers: Likers }) {
+  return (
+    <TableContainer>
+      <Table variant="simple" size={{ base: "sm", md: "md", lg: "lg" }}>
+        <TableCaption>Статистика оценок по пользователям</TableCaption>
+        <Thead>
+          <Tr>
+            <Th>Пользователь</Th>
+            <Th isNumeric color="green.300">
+              +
+            </Th>
+            <Th isNumeric color="red.300">
+              -
+            </Th>
+            <Th isNumeric>Всего</Th>
+          </Tr>
+        </Thead>
+        <Tbody>
+          {[...Object.entries(likers)].map(
+            ([id, { name, avatar_url, minus, plus }]) => (
+              <Tr key={id}>
+                <Td>
+                  <User name={name} avatar_url={avatar_url} id={id} />
+                </Td>
+                <Td>{plus}</Td>
+                <Td>{minus}</Td>
+                <Td>{minus + plus}</Td>
+              </Tr>
+            )
+          )}
+        </Tbody>
+      </Table>
+    </TableContainer>
+  );
+}
+
 function Total({ comments }: TotalProps) {
-  const [commentsLikers, setCommentsLikers] = useState<
-    Record<
-      string,
-      {
-        minus: number;
-        plus: number;
-        name: string;
-        avatar_url: string;
-      }
-    >
-  >({});
+  const [commentsLikers, setCommentsLikers] = useState<Likers>({});
   const [commentIndex, setCommentIndex] = useState(0);
   const { data } = useApi<Osnova.Comment.LikersResponse>(
     `/comment/likers/${(comments?.result || [])[commentIndex]?.id}`,
@@ -369,7 +398,7 @@ function Total({ comments }: TotalProps) {
         justifyContent="space-between"
         minW="100%"
       >
-        {commentStats.plus && +commentStats.plus.id && (
+        {!!+commentStats.plus.id && (
           <Stat>
             <StatLabel>Больше всего плюсов</StatLabel>
             <StatNumber>
@@ -384,7 +413,7 @@ function Total({ comments }: TotalProps) {
             </StatHelpText>
           </Stat>
         )}
-        {commentStats.minus && +commentStats.minus.id && (
+        {!!+commentStats.minus.id && (
           <Stat>
             <StatLabel>Больше всего минусов</StatLabel>
             <StatNumber>
@@ -399,7 +428,7 @@ function Total({ comments }: TotalProps) {
             </StatHelpText>
           </Stat>
         )}
-        {commentStats.total && +commentStats.total.id && (
+        {!!+commentStats.total.id && (
           <Stat>
             <StatLabel>Больше всего оценок</StatLabel>
             <StatNumber>
@@ -421,37 +450,9 @@ function Total({ comments }: TotalProps) {
         )}
       </SimpleGrid>
 
-      <TableContainer>
-        <Table variant="simple" size={{ base: "sm", md: "md", lg: "lg" }}>
-          <TableCaption>Статистика оценок по пользователям</TableCaption>
-          <Thead>
-            <Tr>
-              <Th>Пользователь</Th>
-              <Th isNumeric color="green.300">
-                +
-              </Th>
-              <Th isNumeric color="red.300">
-                -
-              </Th>
-              <Th isNumeric>Всего</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {[...Object.entries(commentsLikers)].map(
-              ([id, { name, avatar_url, minus, plus }]) => (
-                <Tr key={id}>
-                  <Td>
-                    <User name={name} avatar_url={avatar_url} id={id} />
-                  </Td>
-                  <Td>{plus}</Td>
-                  <Td>{minus}</Td>
-                  <Td>{minus + plus}</Td>
-                </Tr>
-              )
-            )}
-          </Tbody>
-        </Table>
-      </TableContainer>
+      {comments?.result?.length <= commentIndex && (
+        <TotalTable likers={commentsLikers} />
+      )}
     </VStack>
   );
 }
