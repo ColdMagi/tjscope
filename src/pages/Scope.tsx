@@ -316,8 +316,9 @@ function TotalTable({ likers }: { likers: Likers }) {
           </Tr>
         </Thead>
         <Tbody>
-          {[...Object.entries(likers)].map(
-            ([id, { name, avatar_url, minus, plus }]) => (
+          {[...Object.entries(likers)]
+            .sort(([_, a], [_0, b]) => b.plus + b.minus - (a.plus + a.minus))
+            .map(([id, { name, avatar_url, minus, plus }]) => (
               <Tr key={id}>
                 <Td>
                   <User name={name} avatar_url={avatar_url} id={id} />
@@ -326,8 +327,7 @@ function TotalTable({ likers }: { likers: Likers }) {
                 <Td>{minus}</Td>
                 <Td>{minus + plus}</Td>
               </Tr>
-            )
-          )}
+            ))}
         </Tbody>
       </Table>
     </TableContainer>
