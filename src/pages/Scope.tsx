@@ -6,6 +6,8 @@ import {
   SimpleGrid,
   StackDivider,
   Stat,
+  StatArrow,
+  StatHelpText,
   StatLabel,
   StatNumber,
   Tab,
@@ -243,6 +245,54 @@ interface TotalProps {
   comments: Osnova.Comment.CommentsResponse;
 }
 
+function ShowRatingPlusMinus({
+  source: { plus, minus },
+}: {
+  source: { plus: number; minus: number };
+}) {
+  return (
+    <HStack spacing={2}>
+      <Text fontSize="16px" as="span" color="green.300">
+        {plus}
+      </Text>
+      <Text fontSize="16px" as="span" color="red.300">
+        {minus}
+      </Text>
+    </HStack>
+  );
+}
+
+interface UserProps {
+  name: string;
+  avatar_url: string;
+  id: number | string;
+  size?: "sm" | "md";
+}
+
+function User({
+  name,
+  avatar_url,
+  id,
+  children,
+  size = "md",
+}: PropsWithChildren<UserProps>) {
+  return (
+    <HStack as="a" href={`https://tjournal.ru/u/${id}`} target="_blank">
+      <Avatar size={size} name={name} src={avatar_url} />
+      <Text
+        fontSize={size === "md" ? "18px" : "14px"}
+        as="b"
+        maxW="200px"
+        textOverflow={"ellipsis"}
+        overflow="hidden"
+      >
+        {name}
+      </Text>
+      {children}
+    </HStack>
+  );
+}
+
 function Total({ comments }: TotalProps) {
   const [commentsLikers, setCommentsLikers] = useState<
     Record<
@@ -261,6 +311,27 @@ function Total({ comments }: TotalProps) {
     undefined,
     "1.9"
   );
+
+  const commentStats = useMemo(() => {
+    const result = {
+      plus: { ...(commentsLikers[0] || { plus: 0 }), id: "0" },
+      minus: { ...(commentsLikers[0] || { minus: 0 }), id: "0" },
+      total: { ...(commentsLikers[0] || { plus: 0, minus: 0 }), id: "0" },
+    };
+
+    for (const [id, cmt] of Object.entries(commentsLikers)) {
+      if (cmt.minus > result.minus.minus) {
+        result.minus = { ...cmt, id };
+      }
+      if (cmt.plus > result.plus.plus) {
+        result.plus = { ...cmt, id };
+      }
+      if (cmt.plus + cmt.minus > result.total.plus + result.total.minus) {
+        result.total = { ...cmt, id };
+      }
+    }
+    return result;
+  }, [commentsLikers]);
 
   useEffect(() => {
     if (!data) return;
@@ -292,6 +363,60 @@ function Total({ comments }: TotalProps) {
       {comments?.result?.length > commentIndex && (
         <Progress size="xs" isIndeterminate w="100%" />
       )}
+
+      <SimpleGrid columns={2} spacing={5}>
+        {commentStats.plus && (
+          <Stat>
+            <StatLabel>Больше всего плюсов</StatLabel>
+            <StatNumber>
+              <User
+                name={commentStats.plus.name}
+                avatar_url={commentStats.plus.avatar_url}
+                id={commentStats.plus.id}
+              />
+            </StatNumber>
+            <StatHelpText pl="14">
+              <ShowRatingPlusMinus source={commentStats.plus} />
+            </StatHelpText>
+          </Stat>
+        )}
+        {commentStats.minus && (
+          <Stat>
+            <StatLabel>Больше всего минусов</StatLabel>
+            <StatNumber>
+              <User
+                name={commentStats.minus.name}
+                avatar_url={commentStats.minus.avatar_url}
+                id={commentStats.minus.id}
+              />
+            </StatNumber>
+            <StatHelpText pl="14">
+              <ShowRatingPlusMinus source={commentStats.minus} />
+            </StatHelpText>
+          </Stat>
+        )}
+        {commentStats.total && (
+          <Stat>
+            <StatLabel>Больше всего оценок</StatLabel>
+            <StatNumber>
+              <User
+                name={commentStats.total.name}
+                avatar_url={commentStats.total.avatar_url}
+                id={commentStats.total.id}
+              />
+            </StatNumber>
+            <StatHelpText pl="14">
+              <HStack alignItems="center">
+                <ShowRatingPlusMinus source={commentStats.total} />
+                <Text fontSize="16px" color="gray.500">
+                  {commentStats.total.minus + commentStats.total.plus ?? "N/A"}
+                </Text>
+              </HStack>
+            </StatHelpText>
+          </Stat>
+        )}
+      </SimpleGrid>
+
       <TableContainer>
         <Table variant="simple">
           <TableCaption>Статистика оценок по пользователям</TableCaption>
@@ -308,21 +433,7 @@ function Total({ comments }: TotalProps) {
               ([id, { name, avatar_url, minus, plus }]) => (
                 <Tr key={id}>
                   <Td>
-                    <HStack
-                      as="a"
-                      href={`https://tjournal.ru/u/${id}`}
-                      target="_blank"
-                    >
-                      <Avatar name={name} src={avatar_url} />
-                      <Text
-                        as="b"
-                        maxW="200px"
-                        textOverflow={"ellipsis"}
-                        overflow="hidden"
-                      >
-                        {name}
-                      </Text>
-                    </HStack>
+                    <User name={name} avatar_url={avatar_url} id={id} />
                   </Td>
                   <Td>{plus}</Td>
                   <Td>{minus}</Td>
