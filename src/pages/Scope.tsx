@@ -428,6 +428,15 @@ function Scope() {
 
   return (
     <VStack align="start">
+      {error && (
+        <VStack align="start">
+          <Heading>Вероятно профиль закрыт или не существует</Heading>
+          <Text fontSize="12px" color="gray.500">
+            Некоторые данные могут быть менее точны и потребуется дополнительное
+            время для подсчета
+          </Text>
+        </VStack>
+      )}
       <Header
         subsite={subsite}
         avatar_url={
