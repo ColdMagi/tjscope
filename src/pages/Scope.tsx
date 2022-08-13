@@ -8,10 +8,19 @@ import {
   StatLabel,
   StatNumber,
   Tab,
+  Table,
+  TableCaption,
+  TableContainer,
   TabList,
   TabPanel,
   TabPanels,
   Tabs,
+  Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tr,
   VStack,
 } from "@chakra-ui/react";
 import BooleanText from "components/atoms/BooleanText";
@@ -20,7 +29,9 @@ import EntryCard from "components/scope/EntryCard";
 import RatingView from "components/scope/RatingView";
 import { format } from "date-fns";
 import { useApi, useApiLazy } from "hooks/useFetch";
-import { PropsWithChildren, useEffect, useMemo, useState } from "react";
+import { useState } from "react";
+import { useEffect } from "react";
+import { PropsWithChildren, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Osnova } from "types/osnova";
 import { getTargetId } from "utils/common";
@@ -215,6 +226,98 @@ function Comments({
   );
 }
 
+interface TotalProps {
+  comments: Osnova.Comment.CommentsResponse;
+}
+
+function Total({ comments }: TotalProps) {
+  const [commentsLikers, setCommentsLikers] = useState<
+    Record<
+      string,
+      {
+        total: number;
+        minus: number;
+        plus: number;
+        name: string;
+        avatar_url: string;
+      }
+    >
+  >({});
+  const [commentIndex, setCommentIndex] = useState(0);
+  const { data } = useApi<Osnova.Comment.LikersResponse>(
+    `/comment/likers/${(comments?.result || [])[commentIndex]?.id}`,
+    undefined,
+    "1.9"
+  );
+
+  useEffect(() => {
+    if (!data) return;
+    setCommentsLikers((prev) => {
+      const result = { ...prev };
+      for (const [id, val] of Object.entries(data.result)) {
+        if (!Reflect.has(result, id)) {
+          result[id] = {
+            total: 0,
+            minus: 0,
+            plus: 0,
+            avatar_url: "",
+            name: "",
+          };
+        }
+        result[id].total += Math.abs(val.sign);
+        result[id].minus += Number(val.sign < 0);
+        result[id].plus += Number(val.sign > 0);
+
+        result[id].avatar_url = val.avatar_url;
+        result[id].name = val.name;
+      }
+      return result;
+    });
+    let timeout = setTimeout(() => setCommentIndex((prev) => prev + 1), 50000);
+    return () => clearTimeout(timeout);
+  }, [data]);
+
+  return (
+    <TableContainer>
+      <Table variant="simple">
+        <TableCaption>Статистика оценок по пользователям</TableCaption>
+        <Thead>
+          <Tr>
+            <Th>Пользователь</Th>
+            <Th isNumeric>Плюс</Th>
+            <Th isNumeric>Минус</Th>
+            <Th isNumeric>Всего</Th>
+          </Tr>
+        </Thead>
+        <Tbody>
+          {[...Object.entries(commentsLikers)].map(
+            ([id, { name, avatar_url, minus, plus, total }]) => (
+              <Tr key={id}>
+                <Td>
+                  <HStack>
+                    <Avatar name={name} src={avatar_url} />
+                    <Text
+                      as="b"
+                      maxW="200px"
+                      textOverflow={"ellipsis"}
+                      overflow="hidden"
+                    >
+                      {name}
+                    </Text>
+                  </HStack>
+                </Td>
+                <Td>{total}</Td>
+                <Td>{minus}</Td>
+                <Td>{plus}</Td>
+              </Tr>
+            )
+          )}
+        </Tbody>
+      </Table>
+    </TableContainer>
+  );
+}
+
 function Header({ subsite }: { subsite: Osnova.Subsite.Subsite }) {
   return (
     <HStack
@@ -304,7 +407,9 @@ function Scope() {
               <Comments data={comments} />
             </VStack>
           </TabPanel>
-          <TabPanel></TabPanel>
+          <TabPanel>
+            <Total comments={comments} />
+          </TabPanel>
         </TabPanels>
       </Tabs>
     </VStack>
