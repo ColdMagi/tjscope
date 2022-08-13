@@ -1,5 +1,5 @@
 import { useApiContext } from "contexts/Api";
-import { useEffect, useReducer, useRef } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 
 interface State<T> {
   data?: T;
@@ -105,5 +105,35 @@ function useApi<T = unknown>(
   return useFetch<T>(url ? `${api.replace("2.31", apiV)}${url}` : url, options);
 }
 
-export { useApi };
+function useApiLazy<T extends { result: Array<unknown> }>(
+  url?: string,
+  options?: RequestInit,
+  apiV = "2.31",
+  inRequest = 50
+): T {
+  const [result, setResult] = useState<T>({ result: [] } as unknown as T);
+  const [offs, setOffs] = useState(0);
+  const { data } = useApi<T>(
+    url + `?count=${inRequest}&offset=${offs}`,
+    options,
+    apiV
+  );
+
+  useEffect(() => {
+    if (!data) return;
+    setResult((prev) => ({
+      ...prev,
+      ...data,
+      result: [...prev.result, ...data.result],
+    }));
+    if (data.result.length >= inRequest) {
+      let timeout = setTimeout(() => setOffs((prev) => prev + inRequest), 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [data, inRequest]);
+
+  return result;
+}
+
+export { useApi, useApiLazy };
 export default useFetch;

@@ -19,7 +19,7 @@ import CommentCard from "components/scope/CommentCard";
 import EntryCard from "components/scope/EntryCard";
 import RatingView from "components/scope/RatingView";
 import { format } from "date-fns";
-import { useApi } from "hooks/useFetch";
+import { useApi, useApiLazy } from "hooks/useFetch";
 import { PropsWithChildren, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Osnova } from "types/osnova";
@@ -73,45 +73,6 @@ function StatCat({ label, children }: PropsWithChildren<{ label: string }>) {
       {children}
     </VStack>
   );
-}
-
-interface LazyLoadDataProps<T> {
-  url: string;
-  options?: RequestInit;
-  apiV?: string;
-  inRequest?: number;
-  children: (props: { data: T | undefined }) => JSX.Element;
-}
-
-function LazyLoadData<T extends { result: Array<unknown> }>({
-  children,
-  options,
-  apiV,
-  url,
-  inRequest = 50,
-}: LazyLoadDataProps<T>) {
-  const [result, setResult] = useState<T>({ result: [] } as unknown as T);
-  const [offs, setOffs] = useState(0);
-  const { data } = useApi<T>(
-    url + `?count=${inRequest}&offset=${offs}`,
-    options,
-    apiV
-  );
-
-  useEffect(() => {
-    if (!data) return;
-    setResult((prev) => ({
-      ...prev,
-      ...data,
-      result: [...prev.result, ...data.result],
-    }));
-    if (data.result.length >= inRequest) {
-      let timeout = setTimeout(() => setOffs((prev) => prev + inRequest), 2000);
-      return () => clearTimeout(timeout);
-    }
-  }, [data, inRequest]);
-
-  return <>{children({ data: result })}</>;
 }
 
 function Entries({ data }: { data: Osnova.Entry.EntriesResponse | undefined }) {
@@ -292,6 +253,16 @@ function Scope() {
   const id = getTargetId(searchParams.get("id") || "");
 
   const { data } = useApi<Osnova.Subsite.SubsiteResponse>(`/subsite?id=${id}`);
+  const entries = useApiLazy<Osnova.Entry.EntriesResponse>(
+    `/user/${id}/entries`,
+    undefined,
+    "1.9"
+  );
+  const comments = useApiLazy<Osnova.Comment.CommentsResponse>(
+    `/user/${id}/comments`,
+    undefined,
+    "1.9"
+  );
 
   if (!data || !data.result) return null;
   const {
@@ -320,12 +291,7 @@ function Scope() {
               w="100%"
               maxW="438px"
             >
-              <LazyLoadData<Osnova.Entry.EntriesResponse>
-                apiV="1.9"
-                url={`/user/${id}/entries`}
-              >
-                {Entries}
-              </LazyLoadData>
+              <Entries data={entries} />
             </VStack>
           </TabPanel>
           <TabPanel>
@@ -335,12 +301,7 @@ function Scope() {
               w="100%"
               maxW="438px"
             >
-              <LazyLoadData<Osnova.Comment.CommentsResponse>
-                apiV="1.9"
-                url={`/user/${id}/comments`}
-              >
-                {Comments}
-              </LazyLoadData>
+              <Comments data={comments} />
             </VStack>
           </TabPanel>
           <TabPanel></TabPanel>
