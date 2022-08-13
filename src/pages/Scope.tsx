@@ -19,7 +19,7 @@ import EntryCard from "components/scope/EntryCard";
 import RatingView from "components/scope/RatingView";
 import { format } from "date-fns";
 import { useApi } from "hooks/useFetch";
-import { PropsWithChildren, useMemo } from "react";
+import { PropsWithChildren, useEffect, useMemo, useState } from "react";
 import { useContext } from "react";
 import { createContext } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -79,19 +79,46 @@ function StatCat({ label, children }: PropsWithChildren<{ label: string }>) {
   );
 }
 
-function Entries() {
-  const id = useScope();
-  const { data } = useApi<Osnova.Entry.EntriesResponse>(
-    `/user/${id}/entries`,
-    undefined,
-    "1.9"
+interface LazyLoadDataProps<T> {
+  url: string;
+  options?: RequestInit;
+  apiV?: string;
+  inRequest?: number;
+  children: (props: { data: T | undefined }) => JSX.Element;
+}
+
+function LazyLoadData<T extends { result: Array<unknown> }>({
+  children,
+  options,
+  apiV,
+  url,
+  inRequest = 50,
+}: LazyLoadDataProps<T>) {
+  const [result, setResult] = useState<T>({ result: [] } as unknown as T);
+  const [offs, setOffs] = useState(0);
+  const { data } = useApi<T>(
+    url + `?count=${inRequest}&offset=${offs}`,
+    options,
+    apiV
   );
 
-  const ownEntries = useMemo(
-    () => (data ? data.result.filter((e) => e.author.id === id) : []),
-    [data, id]
-  );
+  useEffect(() => {
+    if (!data) return;
+    setResult((prev) => ({
+      ...prev,
+      ...data,
+      result: [...prev.result, ...data.result],
+    }));
+    if (data.result.length >= inRequest) {
+      let timeout = setTimeout(() => setOffs((prev) => prev + inRequest), 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [data, inRequest]);
 
+  return <>{children({ data: result })}</>;
+}
+
+function Entries({ data }: { data: Osnova.Entry.EntriesResponse | undefined }) {
   const stats = useMemo(() => {
     const result = {
       rating: 0,
@@ -99,11 +126,11 @@ function Entries() {
       comments: 0,
       reposts: 0,
       hits: 0,
-      mostHits: ownEntries[0],
-      mostLiked: ownEntries[0],
-      mostDisliked: ownEntries[0],
+      mostHits: (data?.result || [])[0],
+      mostLiked: (data?.result || [])[0],
+      mostDisliked: (data?.result || [])[0],
     };
-    for (const entry of ownEntries) {
+    for (const entry of data?.result || []) {
       result.rating += entry.likes.summ;
       result.ratingCount += entry.likes.count;
       result.comments += entry.commentsCount;
@@ -123,7 +150,7 @@ function Entries() {
       }
     }
     return result;
-  }, [ownEntries]);
+  }, [data]);
 
   return (
     <VStack align="flex-start" w="100%" pl="2" spacing={4}>
@@ -297,7 +324,12 @@ function Scope() {
                 w="100%"
                 maxW="438px"
               >
-                <Entries />
+                <LazyLoadData<Osnova.Entry.EntriesResponse>
+                  apiV="1.9"
+                  url={`/user/${id}/entries`}
+                >
+                  {Entries}
+                </LazyLoadData>
               </VStack>
             </TabPanel>
             <TabPanel>
