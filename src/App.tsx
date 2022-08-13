@@ -1,11 +1,11 @@
-import { ChakraProvider, Container, Heading } from "@chakra-ui/react";
+import { chakra, ChakraProvider, Container, Heading } from "@chakra-ui/react";
 import { Link, Outlet } from "react-router-dom";
 
 function App() {
   return (
     <ChakraProvider>
       <Container my={4}>
-        <header className="">
+        <chakra.header display="flex" alignItems="flex-start">
           <Heading
             as={Link}
             bgGradient="linear(to-l, blue.500, yellow.200)"
@@ -16,7 +16,10 @@ function App() {
           >
             TJScope
           </Heading>
-        </header>
+          <chakra.span pl="2" color="gray.400">
+            v0.2-alpha
+          </chakra.span>
+        </chakra.header>
 
         <Outlet />
       </Container>
