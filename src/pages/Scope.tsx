@@ -200,29 +200,21 @@ function Entries({ data }: { data: Osnova.Entry.EntriesResponse | undefined }) {
   );
 }
 
-function Comments() {
-  const id = useScope();
-  const { data } = useApi<Osnova.Comment.CommentsResponse>(
-    `/user/${id}/comments`,
-    undefined,
-    "1.9"
-  );
-
+function Comments({
+  data,
+}: {
+  data: Osnova.Comment.CommentsResponse | undefined;
+}) {
   console.log(data);
-
-  const own = useMemo(
-    () => (data ? data.result.filter((e) => e.author.id === id) : []),
-    [data, id]
-  );
 
   const stats = useMemo(() => {
     const result = {
       rating: 0,
       ratingCount: 0,
-      mostLiked: own[0],
-      mostDisliked: own[0],
+      mostLiked: (data?.result || [])[0],
+      mostDisliked: (data?.result || [])[0],
     };
-    for (const entry of own) {
+    for (const entry of data?.result || []) {
       result.rating += entry.likes.summ;
       result.ratingCount += entry.likes.count;
       if (entry.likes.summ > result.mostLiked.likes.summ) {
@@ -236,7 +228,7 @@ function Comments() {
       }
     }
     return result;
-  }, [own]);
+  }, [data]);
 
   return (
     <VStack align="flex-start" w="100%" pl="2" spacing={4}>
@@ -339,7 +331,12 @@ function Scope() {
                 w="100%"
                 maxW="438px"
               >
-                <Comments />
+                <LazyLoadData<Osnova.Comment.CommentsResponse>
+                  apiV="1.9"
+                  url={`/user/${id}/comments`}
+                >
+                  {Comments}
+                </LazyLoadData>
               </VStack>
             </TabPanel>
           </TabPanels>
