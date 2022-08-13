@@ -106,7 +106,8 @@ function Overview({
         columns={2}
         spacing={3}
         justifyContent="space-between"
-        minW="100%"
+        w="100%"
+        maxW="418px"
       >
         <Stat>
           <StatLabel>Plus</StatLabel>
