@@ -23,6 +23,7 @@ import {
   Th,
   Thead,
   Tr,
+  useConst,
   VStack,
 } from "@chakra-ui/react";
 import BooleanText from "components/atoms/BooleanText";
@@ -34,9 +35,38 @@ import { useApi, useApiLazy } from "hooks/useFetch";
 import { useState } from "react";
 import { useEffect } from "react";
 import { PropsWithChildren, useMemo } from "react";
+import { Bar, Radar } from "react-chartjs-2";
 import { useSearchParams } from "react-router-dom";
 import { Osnova } from "types/osnova";
-import { getTargetId } from "utils/common";
+import { getMonths, getTargetId } from "utils/common";
+
+import {
+  ChartData,
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  RadialLinearScale,
+  PointElement,
+  BarElement,
+  LineElement,
+  Filler,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  RadialLinearScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  Filler,
+  Title,
+  Tooltip,
+  Legend
+);
 
 function Overview({
   subsite,
@@ -239,6 +269,133 @@ function Comments({
     </VStack>
   );
 }
+
+//#region Activity
+
+interface ActivityProps {
+  comments: Osnova.Comment.CommentsResponse;
+}
+
+function Activity({ comments }: ActivityProps) {
+  const options = useConst({ plugins: { legend: { display: false } } });
+  const commentDatasetOptions = useConst({
+    borderColor: "rgb(49,130,206)",
+    backgroundColor: "rgba(49,130,206,0.4)",
+    borderWidth: 1,
+  });
+  const getStats = useConst(
+    () =>
+      function getStats<T extends { result?: Array<{ date: number }> }>(
+        target: T,
+        dsOpts = {}
+      ) {
+        const d = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+        const dd = { ...d, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0 };
+        const stats: {
+          years: Record<string, number>;
+          months: Record<string, number>;
+          days: Record<string, number>;
+          hours: Record<string, number>;
+        } = {
+          years: {},
+          months: {
+            ...dd,
+          },
+          days: { ...d },
+          hours: {
+            ...d,
+            12: 0,
+            13: 0,
+            14: 0,
+            15: 0,
+            16: 0,
+            17: 0,
+            18: 0,
+            19: 0,
+            20: 0,
+            21: 0,
+            22: 0,
+            23: 0,
+          },
+        };
+        for (const el of target?.result || []) {
+          const dt = new Date(el.date * 1000);
+          const year = dt.getUTCFullYear();
+          const month = dt.getUTCMonth();
+          const day = dt.getDay();
+          const hour = dt.getUTCHours();
+          stats.years[year] = (stats.years[year] || 0) + 1;
+          stats.months[month] = (stats.months[month] || 0) + 1;
+          stats.days[day] = (stats.days[day] || 0) + 1;
+          stats.hours[hour] = (stats.hours[hour] || 0) + 1;
+        }
+        return {
+          years: {
+            datasets: [
+              {
+                data: [...Object.values(stats.years)],
+                ...dsOpts,
+              },
+            ],
+            labels: [...Object.keys(stats.years)],
+          },
+          months: {
+            datasets: [{ data: [...Object.values(stats.months)], ...dsOpts }],
+            labels: [...getMonths()],
+          },
+          days: {
+            datasets: [{ data: [...Object.values(stats.days)], ...dsOpts }],
+            labels: ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
+          },
+          hours: {
+            datasets: [{ data: [...Object.values(stats.hours)], ...dsOpts }],
+            labels: [...Object.keys(stats.hours)],
+          },
+        } as {
+          years: ChartData<"bar", number[], string>;
+          months: ChartData<"bar", number[], string>;
+          days: ChartData<"bar", number[], string>;
+          hours: ChartData<"radar", number[], string>;
+        };
+      }
+  );
+
+  const commentsStats = useMemo(() => {
+    return getStats(comments, commentDatasetOptions);
+  }, [comments, commentDatasetOptions, getStats]);
+
+  return (
+    <Tabs w="100%">
+      <TabList w="100%">
+        <Tab>Комментарии</Tab>
+      </TabList>
+      <TabPanels w="100%">
+        <TabPanel w="100%">
+          <VStack w="100%">
+            <Heading size="md">По годам</Heading>
+            <Bar data={commentsStats.years} options={options} />
+          </VStack>
+          <VStack w="100%">
+            <Heading size="md">По месяцам</Heading>
+            <Bar data={commentsStats.months} options={options} />
+          </VStack>
+          <VStack w="100%">
+            <Heading size="md">По дням</Heading>
+            <Bar data={commentsStats.days} options={options} />
+          </VStack>
+          <VStack w="100%">
+            <Heading size="md">По часам</Heading>
+            <Radar data={commentsStats.hours} options={options} />
+          </VStack>
+        </TabPanel>
+      </TabPanels>
+    </Tabs>
+  );
+}
+
+//#endregion
+
+//#region Total
 
 interface TotalProps {
   comments: Osnova.Comment.CommentsResponse;
@@ -455,6 +612,8 @@ function Total({ comments }: TotalProps) {
   );
 }
 
+//#endregion
+
 function Header({
   subsite,
   avatar_url,
@@ -571,6 +730,7 @@ function Scope() {
           <Tab>Обзор</Tab>
           <Tab>Посты</Tab>
           <Tab>Комментарии</Tab>
+          <Tab>Активность</Tab>
           <Tab>Итог</Tab>
         </TabList>
         <TabPanels>
@@ -600,6 +760,9 @@ function Scope() {
             >
               <Comments data={comments} />
             </VStack>
+          </TabPanel>
+          <TabPanel w="100%" maxW="438px">
+            <Activity comments={comments} />
           </TabPanel>
           <TabPanel>
             <Total comments={comments} />
