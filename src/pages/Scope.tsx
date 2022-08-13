@@ -690,18 +690,18 @@ function Header({
 }) {
   return (
     <HStack
-      spacing={10}
+      spacing={{ base: 5, md: 10 }}
       position="sticky"
       top="0"
       bg="white"
       zIndex="1000"
       pt="5"
       pb="2"
-      px="4"
+      px={{ base: 2, md: 4 }}
     >
       <Avatar
         name={subsite.name}
-        size="2xl"
+        size={{ base: "xl", md: "2xl" }}
         src={
           subsite?.avatar?.data?.uuid
             ? `https://leonardo.osnova.io/${subsite?.avatar?.data?.uuid}/-/scale_crop/300x300/-/format/webp/`
@@ -709,7 +709,7 @@ function Header({
         }
       />
       <VStack>
-        <Heading size="lg">{subsite.name}</Heading>
+        <Heading size={{ base: "md", md: "lg" }}>{subsite.name}</Heading>
         <HStack justifyContent={"space-between"} minW="100%">
           <RatingView>{subsite.rating ?? rating ?? "N/A"}</RatingView>
           <Stat>
@@ -790,8 +790,22 @@ function Scope() {
         rating={entriesRating + commentsRating}
       />
 
-      <Tabs variant={"enclosed"}>
-        <TabList>
+      <Tabs
+        variant={"soft-rounded"}
+        size={{ base: "sm", md: "md" }}
+        maxW="100%"
+      >
+        <TabList
+          minW="0"
+          maxW="100%"
+          overflowX="auto"
+          sx={{
+            scrollbarWidth: "none",
+            "::-webkit-scrollbar": { display: "none" },
+            WebkitOverflowScrolling: "touch",
+          }}
+          px="1"
+        >
           <Tab>Обзор</Tab>
           <Tab>Посты</Tab>
           <Tab>Комментарии</Tab>
@@ -807,26 +821,16 @@ function Scope() {
             />
           </TabPanel>
           <TabPanel>
-            <VStack
-              align="flex-start"
-              divider={<StackDivider />}
-              w="100%"
-              maxW="438px"
-            >
+            <VStack align="flex-start" divider={<StackDivider />}>
               <Entries data={entries} />
             </VStack>
           </TabPanel>
           <TabPanel>
-            <VStack
-              align="flex-start"
-              divider={<StackDivider />}
-              w="100%"
-              maxW="438px"
-            >
+            <VStack align="flex-start" divider={<StackDivider />}>
               <Comments data={comments} />
             </VStack>
           </TabPanel>
-          <TabPanel w="100%" maxW="438px">
+          <TabPanel>
             <Activity comments={comments} entries={entries} />
           </TabPanel>
           <TabPanel>
