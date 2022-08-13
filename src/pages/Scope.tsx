@@ -28,7 +28,7 @@ import BooleanText from "components/atoms/BooleanText";
 import CommentCard from "components/scope/CommentCard";
 import EntryCard from "components/scope/EntryCard";
 import RatingView from "components/scope/RatingView";
-import { format } from "date-fns";
+import { format, isValid } from "date-fns";
 import { useApi, useApiLazy } from "hooks/useFetch";
 import { useState } from "react";
 import { useEffect } from "react";
@@ -37,25 +37,37 @@ import { useSearchParams } from "react-router-dom";
 import { Osnova } from "types/osnova";
 import { getTargetId } from "utils/common";
 
-function Overview({ subsite }: { subsite: Osnova.Subsite.Subsite }) {
+function Overview({
+  subsite,
+  entries,
+  comments,
+}: {
+  subsite: Osnova.Subsite.Subsite;
+  entries?: number;
+  comments?: number;
+}) {
   return (
     <VStack divider={<StackDivider />}>
       <SimpleGrid columns={4} spacing={3}>
         <Stat>
           <StatLabel>Постов</StatLabel>
-          <StatNumber>{subsite.counters.entries}</StatNumber>
+          <StatNumber>
+            {subsite?.counters?.entries || entries || "N/A"}
+          </StatNumber>
         </Stat>
         <Stat>
           <StatLabel>Комментариев</StatLabel>
-          <StatNumber>{subsite.counters.comments}</StatNumber>
+          <StatNumber>
+            {subsite?.counters?.comments || comments || "N/A"}
+          </StatNumber>
         </Stat>
         <Stat>
           <StatLabel>Подписок</StatLabel>
-          <StatNumber>{subsite.counters.subscriptions}</StatNumber>
+          <StatNumber>{subsite?.counters?.subscriptions || "N/A"}</StatNumber>
         </Stat>
         <Stat>
           <StatLabel>Подписчиков</StatLabel>
-          <StatNumber>{subsite.counters.subscribers}</StatNumber>
+          <StatNumber>{subsite?.counters?.subscribers || "N/A"}</StatNumber>
         </Stat>
       </SimpleGrid>
 
@@ -67,11 +79,11 @@ function Overview({ subsite }: { subsite: Osnova.Subsite.Subsite }) {
       >
         <Stat>
           <StatLabel>Plus</StatLabel>
-          <StatNumber>{<BooleanText value={subsite.isPlus} />}</StatNumber>
+          <StatNumber>{<BooleanText value={subsite?.isPlus} />}</StatNumber>
         </Stat>
         <Stat>
           <StatLabel>Подтвержден</StatLabel>
-          <StatNumber>{<BooleanText value={subsite.isVerified} />}</StatNumber>
+          <StatNumber>{<BooleanText value={subsite?.isVerified} />}</StatNumber>
         </Stat>
       </SimpleGrid>
     </VStack>
@@ -328,7 +340,13 @@ function Total({ comments }: TotalProps) {
   );
 }
 
-function Header({ subsite }: { subsite: Osnova.Subsite.Subsite }) {
+function Header({
+  subsite,
+  avatar_url,
+}: {
+  subsite: Osnova.Subsite.Subsite;
+  avatar_url?: string;
+}) {
   return (
     <HStack
       spacing={10}
@@ -343,7 +361,11 @@ function Header({ subsite }: { subsite: Osnova.Subsite.Subsite }) {
       <Avatar
         name={subsite.name}
         size="2xl"
-        src={`https://leonardo.osnova.io/${subsite.avatar.data.uuid}/-/scale_crop/300x300/-/format/webp/`}
+        src={
+          subsite?.avatar?.data?.uuid
+            ? `https://leonardo.osnova.io/${subsite?.avatar?.data?.uuid}/-/scale_crop/300x300/-/format/webp/`
+            : avatar_url
+        }
       />
       <VStack>
         <Heading size="lg">{subsite.name}</Heading>
@@ -352,7 +374,9 @@ function Header({ subsite }: { subsite: Osnova.Subsite.Subsite }) {
           <Stat>
             <StatLabel>Создан</StatLabel>
             <StatNumber>
-              {format(subsite.created * 1000, "dd.LL.yy")}
+              {isValid(subsite.created)
+                ? format(subsite.created * 1000, "dd.LL.yy")
+                : "N/A"}
             </StatNumber>
           </Stat>
         </HStack>
@@ -365,7 +389,9 @@ function Scope() {
   const [searchParams] = useSearchParams();
   const id = getTargetId(searchParams.get("id") || "");
 
-  const { data } = useApi<Osnova.Subsite.SubsiteResponse>(`/subsite?id=${id}`);
+  const { data, error } = useApi<Osnova.Subsite.SubsiteResponse>(
+    `/subsite?id=${id}`
+  );
   const entries = useApiLazy<Osnova.Entry.EntriesResponse>(
     `/user/${id}/entries`,
     undefined,
@@ -377,14 +403,32 @@ function Scope() {
     "1.9"
   );
 
-  if (!data || !data.result) return null;
   const {
     result: { subsite },
-  } = data;
+  } = data || {
+    result: {
+      subsite: {
+        name:
+          comments?.result?.at(0)?.author?.name ||
+          entries?.result?.at(0)?.author?.name,
+      } as any,
+    },
+  };
 
   return (
     <VStack align="start">
-      <Header subsite={subsite} />
+      {error && (
+        <VStack>
+          <Heading>Вероятно профиль закрыт</Heading>
+        </VStack>
+      )}
+      <Header
+        subsite={subsite}
+        avatar_url={
+          comments?.result?.at(0)?.author?.avatar_url ||
+          entries?.result?.at(0)?.author?.avatar_url
+        }
+      />
 
       <Tabs variant={"enclosed"}>
         <TabList>
@@ -395,7 +439,11 @@ function Scope() {
         </TabList>
         <TabPanels>
           <TabPanel>
-            <Overview subsite={subsite} />
+            <Overview
+              subsite={subsite}
+              entries={entries?.result?.length}
+              comments={comments?.result?.length}
+            />
           </TabPanel>
           <TabPanel>
             <VStack
