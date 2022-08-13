@@ -201,8 +201,6 @@ function Comments({
 }: {
   data: Osnova.Comment.CommentsResponse | undefined;
 }) {
-  console.log(data);
-
   const stats = useMemo(() => {
     const result = {
       rating: 0,
@@ -256,6 +254,39 @@ function Comments({
   );
 }
 
+function Header({ subsite }: { subsite: Osnova.Subsite.Subsite }) {
+  return (
+    <HStack
+      spacing={10}
+      position="sticky"
+      top="0"
+      bg="white"
+      zIndex="1000"
+      pt="5"
+      pb="2"
+      px="4"
+    >
+      <Avatar
+        name={subsite.name}
+        size="2xl"
+        src={`https://leonardo.osnova.io/${subsite.avatar.data.uuid}/-/scale_crop/300x300/-/format/webp/`}
+      />
+      <VStack>
+        <Heading size="lg">{subsite.name}</Heading>
+        <HStack justifyContent={"space-between"} minW="100%">
+          <RatingView>{subsite.rating}</RatingView>
+          <Stat>
+            <StatLabel>Создан</StatLabel>
+            <StatNumber>
+              {format(subsite.created * 1000, "dd.LL.yy")}
+            </StatNumber>
+          </Stat>
+        </HStack>
+      </VStack>
+    </HStack>
+  );
+}
+
 function Scope() {
   const [searchParams] = useSearchParams();
   const id = getTargetId(searchParams.get("id") || "");
@@ -269,40 +300,14 @@ function Scope() {
 
   return (
     <VStack align="start">
-      <HStack
-        spacing={10}
-        position="sticky"
-        top="0"
-        bg="white"
-        zIndex="1000"
-        pt="5"
-        pb="2"
-        px="4"
-      >
-        <Avatar
-          name={subsite.name}
-          size="2xl"
-          src={`https://leonardo.osnova.io/${subsite.avatar.data.uuid}/-/scale_crop/300x300/-/format/webp/`}
-        />
-        <VStack>
-          <Heading size="lg">{subsite.name}</Heading>
-          <HStack justifyContent={"space-between"} minW="100%">
-            <RatingView>{subsite.rating}</RatingView>
-            <Stat>
-              <StatLabel>Создан</StatLabel>
-              <StatNumber>
-                {format(subsite.created * 1000, "dd.LL.yy")}
-              </StatNumber>
-            </Stat>
-          </HStack>
-        </VStack>
-      </HStack>
+      <Header subsite={subsite} />
 
       <Tabs variant={"enclosed"}>
         <TabList>
           <Tab>Обзор</Tab>
           <Tab>Посты</Tab>
           <Tab>Комментарии</Tab>
+          <Tab>Итог</Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
@@ -338,6 +343,7 @@ function Scope() {
               </LazyLoadData>
             </VStack>
           </TabPanel>
+          <TabPanel></TabPanel>
         </TabPanels>
       </Tabs>
     </VStack>
