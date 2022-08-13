@@ -274,13 +274,62 @@ function Comments({
 
 interface ActivityProps {
   comments: Osnova.Comment.CommentsResponse;
+  entries: Osnova.Entry.EntriesResponse;
 }
 
-function Activity({ comments }: ActivityProps) {
+type ActivityChartData = {
+  years: ChartData<"bar", number[], string>;
+  months: ChartData<"bar", number[], string>;
+  days: ChartData<"bar", number[], string>;
+  hours: ChartData<"radar", number[], string>;
+  rating: ChartData<"bar", number[], string>;
+};
+
+interface ActivityChartsProps {
+  data: ActivityChartData;
+  options?: Object;
+}
+
+function ActivityCharts({
+  data: { years, months, days, hours, rating },
+  options,
+}: ActivityChartsProps) {
+  return (
+    <>
+      <VStack w="100%">
+        <Heading size="md">По годам</Heading>
+        <Bar data={years} options={options} />
+      </VStack>
+      <VStack w="100%">
+        <Heading size="md">По месяцам</Heading>
+        <Bar data={months} options={options} />
+      </VStack>
+      <VStack w="100%">
+        <Heading size="md">По дням</Heading>
+        <Bar data={days} options={options} />
+      </VStack>
+      <VStack w="100%">
+        <Heading size="md">По часам</Heading>
+        <Radar data={hours} options={options} />
+      </VStack>
+      <VStack w="100%">
+        <Heading size="md">Оценки</Heading>
+        <Bar data={rating} options={{ indexAxis: "y" }} />
+      </VStack>
+    </>
+  );
+}
+
+function Activity({ comments, entries }: ActivityProps) {
   const options = useConst({ plugins: { legend: { display: false } } });
   const commentDatasetOptions = useConst({
     borderColor: "rgb(49,130,206)",
     backgroundColor: "rgba(49,130,206,0.4)",
+    borderWidth: 1,
+  });
+  const entryDatasetOptions = useConst({
+    borderColor: "rgb(237,137,54)",
+    backgroundColor: "rgba(237,137,54,0.4)",
     borderWidth: 1,
   });
   const getStats = useConst(
@@ -378,13 +427,7 @@ function Activity({ comments }: ActivityProps) {
             ],
             labels: [""],
           },
-        } as {
-          years: ChartData<"bar", number[], string>;
-          months: ChartData<"bar", number[], string>;
-          days: ChartData<"bar", number[], string>;
-          hours: ChartData<"radar", number[], string>;
-          rating: ChartData<"bar", number[], string>;
-        };
+        } as ActivityChartData;
       }
   );
 
@@ -392,33 +435,22 @@ function Activity({ comments }: ActivityProps) {
     return getStats(comments, commentDatasetOptions);
   }, [comments, commentDatasetOptions, getStats]);
 
+  const entriesStats = useMemo(() => {
+    return getStats(entries, entryDatasetOptions);
+  }, [entries, entryDatasetOptions, getStats]);
+
   return (
     <Tabs w="100%">
       <TabList w="100%">
+        <Tab>Посты</Tab>
         <Tab>Комментарии</Tab>
       </TabList>
       <TabPanels w="100%">
         <TabPanel w="100%">
-          <VStack w="100%">
-            <Heading size="md">По годам</Heading>
-            <Bar data={commentsStats.years} options={options} />
-          </VStack>
-          <VStack w="100%">
-            <Heading size="md">По месяцам</Heading>
-            <Bar data={commentsStats.months} options={options} />
-          </VStack>
-          <VStack w="100%">
-            <Heading size="md">По дням</Heading>
-            <Bar data={commentsStats.days} options={options} />
-          </VStack>
-          <VStack w="100%">
-            <Heading size="md">По часам</Heading>
-            <Radar data={commentsStats.hours} options={options} />
-          </VStack>
-          <VStack w="100%">
-            <Heading size="md">Оценки</Heading>
-            <Bar data={commentsStats.rating} options={{ indexAxis: "y" }} />
-          </VStack>
+          <ActivityCharts data={entriesStats} options={options} />
+        </TabPanel>
+        <TabPanel w="100%">
+          <ActivityCharts data={commentsStats} options={options} />
         </TabPanel>
       </TabPanels>
     </Tabs>
@@ -794,7 +826,7 @@ function Scope() {
             </VStack>
           </TabPanel>
           <TabPanel w="100%" maxW="438px">
-            <Activity comments={comments} />
+            <Activity comments={comments} entries={entries} />
           </TabPanel>
           <TabPanel>
             <Total comments={comments} />
