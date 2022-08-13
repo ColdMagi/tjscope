@@ -248,7 +248,6 @@ function Total({ comments }: TotalProps) {
     Record<
       string,
       {
-        total: number;
         minus: number;
         plus: number;
         name: string;
@@ -270,14 +269,12 @@ function Total({ comments }: TotalProps) {
       for (const [id, val] of Object.entries(data.result)) {
         if (!Reflect.has(result, id)) {
           result[id] = {
-            total: 0,
             minus: 0,
             plus: 0,
             avatar_url: "",
             name: "",
           };
         }
-        result[id].total += Math.abs(val.sign);
         result[id].minus += Number(val.sign < 0);
         result[id].plus += Number(val.sign > 0);
 
@@ -308,7 +305,7 @@ function Total({ comments }: TotalProps) {
           </Thead>
           <Tbody>
             {[...Object.entries(commentsLikers)].map(
-              ([id, { name, avatar_url, minus, plus, total }]) => (
+              ([id, { name, avatar_url, minus, plus }]) => (
                 <Tr key={id}>
                   <Td>
                     <HStack
@@ -327,9 +324,9 @@ function Total({ comments }: TotalProps) {
                       </Text>
                     </HStack>
                   </Td>
-                  <Td>{total}</Td>
-                  <Td>{minus}</Td>
                   <Td>{plus}</Td>
+                  <Td>{minus}</Td>
+                  <Td>{minus + plus}</Td>
                 </Tr>
               )
             )}
