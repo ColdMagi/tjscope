@@ -15,6 +15,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import BooleanText from "components/atoms/BooleanText";
+import CommentCard from "components/scope/CommentCard";
 import EntryCard from "components/scope/EntryCard";
 import RatingView from "components/scope/RatingView";
 import { format } from "date-fns";
@@ -241,11 +242,15 @@ function Comments({
       </SimpleGrid>
 
       {stats.mostLiked && (
-        <StatCat label="Наибольшее количество плюсов"></StatCat>
+        <StatCat label="Наибольшее количество плюсов">
+          <CommentCard comment={stats.mostLiked} />
+        </StatCat>
       )}
 
       {stats.mostDisliked && (
-        <StatCat label="Наибольшее количество минусов"></StatCat>
+        <StatCat label="Наибольшее количество минусов">
+          <CommentCard comment={stats.mostDisliked} />
+        </StatCat>
       )}
     </VStack>
   );
