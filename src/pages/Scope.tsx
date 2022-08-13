@@ -281,7 +281,7 @@ function User({
       <Text
         fontSize={size === "md" ? "18px" : "14px"}
         as="b"
-        maxW="200px"
+        maxW={{ base: "150px", md: "180px", lg: "200px" }}
         textOverflow={"ellipsis"}
         overflow="hidden"
       >
@@ -364,7 +364,7 @@ function Total({ comments }: TotalProps) {
       )}
 
       <SimpleGrid
-        columns={2}
+        columns={{ md: 2, base: 1 }}
         spacing={5}
         justifyContent="space-between"
         minW="100%"
@@ -422,13 +422,17 @@ function Total({ comments }: TotalProps) {
       </SimpleGrid>
 
       <TableContainer>
-        <Table variant="simple">
+        <Table variant="simple" size={{ base: "sm", md: "md", lg: "lg" }}>
           <TableCaption>Статистика оценок по пользователям</TableCaption>
           <Thead>
             <Tr>
               <Th>Пользователь</Th>
-              <Th isNumeric>Плюс</Th>
-              <Th isNumeric>Минус</Th>
+              <Th isNumeric color="green.300">
+                +
+              </Th>
+              <Th isNumeric color="red.300">
+                -
+              </Th>
               <Th isNumeric>Всего</Th>
             </Tr>
           </Thead>
