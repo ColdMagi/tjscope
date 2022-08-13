@@ -6,7 +6,6 @@ import {
   SimpleGrid,
   StackDivider,
   Stat,
-  StatArrow,
   StatHelpText,
   StatLabel,
   StatNumber,
@@ -364,8 +363,13 @@ function Total({ comments }: TotalProps) {
         <Progress size="xs" isIndeterminate w="100%" />
       )}
 
-      <SimpleGrid columns={2} spacing={5}>
-        {commentStats.plus && (
+      <SimpleGrid
+        columns={2}
+        spacing={5}
+        justifyContent="space-between"
+        minW="100%"
+      >
+        {commentStats.plus && +commentStats.plus.id && (
           <Stat>
             <StatLabel>Больше всего плюсов</StatLabel>
             <StatNumber>
@@ -380,7 +384,7 @@ function Total({ comments }: TotalProps) {
             </StatHelpText>
           </Stat>
         )}
-        {commentStats.minus && (
+        {commentStats.minus && +commentStats.minus.id && (
           <Stat>
             <StatLabel>Больше всего минусов</StatLabel>
             <StatNumber>
@@ -395,7 +399,7 @@ function Total({ comments }: TotalProps) {
             </StatHelpText>
           </Stat>
         )}
-        {commentStats.total && (
+        {commentStats.total && +commentStats.total.id && (
           <Stat>
             <StatLabel>Больше всего оценок</StatLabel>
             <StatNumber>
