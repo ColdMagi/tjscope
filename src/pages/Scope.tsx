@@ -79,7 +79,12 @@ function Overview({
 }) {
   return (
     <VStack divider={<StackDivider />}>
-      <SimpleGrid columns={4} spacing={3}>
+      <SimpleGrid
+        columns={{ base: 2, sm: 4 }}
+        spacing={3}
+        justifyContent="space-between"
+        w="100%"
+      >
         <Stat>
           <StatLabel>Постов</StatLabel>
           <StatNumber>
@@ -107,7 +112,6 @@ function Overview({
         spacing={3}
         justifyContent="space-between"
         w="100%"
-        maxW="418px"
       >
         <Stat>
           <StatLabel>Plus</StatLabel>
@@ -441,7 +445,7 @@ function Activity({ comments, entries }: ActivityProps) {
   }, [entries, entryDatasetOptions, getStats]);
 
   return (
-    <Tabs w="100%">
+    <Tabs isFitted variant="enclosed" w="100%">
       <TabList w="100%">
         <Tab>Посты</Tab>
         <Tab>Комментарии</Tab>
@@ -690,14 +694,16 @@ function Header({
 }) {
   return (
     <HStack
-      spacing={{ base: 5, md: 10 }}
+      spacing={{ base: 5, sm: 8, md: 10 }}
       position="sticky"
       top="0"
       bg="white"
       zIndex="1000"
       pt="5"
       pb="2"
-      px={{ base: 2, md: 4 }}
+      px={{ base: 2, sm: 3, md: 4 }}
+      w="100%"
+      justifyContent="center"
     >
       <Avatar
         name={subsite.name}
@@ -709,7 +715,7 @@ function Header({
         }
       />
       <VStack>
-        <Heading size={{ base: "md", md: "lg" }}>{subsite.name}</Heading>
+        <Heading size={{ base: "md", sm: "lg" }}>{subsite.name}</Heading>
         <HStack justifyContent={"space-between"} minW="100%">
           <RatingView>{subsite.rating ?? rating ?? "N/A"}</RatingView>
           <Stat>

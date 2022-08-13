@@ -14,7 +14,7 @@ function Start() {
   };
 
   return (
-    <InputGroup mt="4" size="lg">
+    <InputGroup mt="4" px="2" size="lg">
       <Input
         pr="6.2rem"
         placeholder="https://tjournal.ru/"
