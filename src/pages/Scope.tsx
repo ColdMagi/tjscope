@@ -285,10 +285,14 @@ function Activity({ comments }: ActivityProps) {
   });
   const getStats = useConst(
     () =>
-      function getStats<T extends { result?: Array<{ date: number }> }>(
-        target: T,
-        dsOpts = {}
-      ) {
+      function getStats<
+        T extends {
+          result?: Array<{
+            date: number;
+            likes: { count: number; summ: number };
+          }>;
+        }
+      >(target: T, dsOpts = {}) {
         const d = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
         const dd = { ...d, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0 };
         const stats: {
@@ -296,6 +300,7 @@ function Activity({ comments }: ActivityProps) {
           months: Record<string, number>;
           days: Record<string, number>;
           hours: Record<string, number>;
+          rating: { minus: number; plus: number };
         } = {
           years: {},
           months: {
@@ -317,17 +322,20 @@ function Activity({ comments }: ActivityProps) {
             22: 0,
             23: 0,
           },
+          rating: { minus: 0, plus: 0 },
         };
         for (const el of target?.result || []) {
           const dt = new Date(el.date * 1000);
           const year = dt.getUTCFullYear();
           const month = dt.getUTCMonth();
-          const day = dt.getDay();
+          const day = dt.getUTCDay();
           const hour = dt.getUTCHours();
           stats.years[year] = (stats.years[year] || 0) + 1;
           stats.months[month] = (stats.months[month] || 0) + 1;
           stats.days[day] = (stats.days[day] || 0) + 1;
           stats.hours[hour] = (stats.hours[hour] || 0) + 1;
+          stats.rating.plus += el.likes.summ;
+          stats.rating.minus += el.likes.count - el.likes.summ;
         }
         return {
           years: {
@@ -351,11 +359,31 @@ function Activity({ comments }: ActivityProps) {
             datasets: [{ data: [...Object.values(stats.hours)], ...dsOpts }],
             labels: [...Object.keys(stats.hours)],
           },
+          rating: {
+            datasets: [
+              {
+                data: [stats.rating.minus],
+                label: "Отрицательные",
+                backgroundColor: "rgba(229,62,62, 0.2)",
+                borderColor: "rgb(229,62,62)",
+                borderWidth: 1,
+              },
+              {
+                data: [stats.rating.plus],
+                label: "Положительные",
+                backgroundColor: "rgba(72,187,120, 0.2)",
+                borderColor: "rgb(72,187,120)",
+                borderWidth: 1,
+              },
+            ],
+            labels: [""],
+          },
         } as {
           years: ChartData<"bar", number[], string>;
           months: ChartData<"bar", number[], string>;
           days: ChartData<"bar", number[], string>;
           hours: ChartData<"radar", number[], string>;
+          rating: ChartData<"bar", number[], string>;
         };
       }
   );
@@ -386,6 +414,10 @@ function Activity({ comments }: ActivityProps) {
           <VStack w="100%">
             <Heading size="md">По часам</Heading>
             <Radar data={commentsStats.hours} options={options} />
+          </VStack>
+          <VStack w="100%">
+            <Heading size="md">Оценки</Heading>
+            <Bar data={commentsStats.rating} options={{ indexAxis: "y" }} />
           </VStack>
         </TabPanel>
       </TabPanels>
