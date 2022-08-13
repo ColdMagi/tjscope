@@ -20,14 +20,9 @@ import RatingView from "components/scope/RatingView";
 import { format } from "date-fns";
 import { useApi } from "hooks/useFetch";
 import { PropsWithChildren, useEffect, useMemo, useState } from "react";
-import { useContext } from "react";
-import { createContext } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Osnova } from "types/osnova";
 import { getTargetId } from "utils/common";
-
-const Context = createContext(0);
-const useScope = () => useContext(Context);
 
 function Overview({ subsite }: { subsite: Osnova.Subsite.Subsite }) {
   return (
@@ -268,81 +263,79 @@ function Scope() {
   } = data;
 
   return (
-    <Context.Provider value={id}>
-      <VStack align="start">
-        <HStack
-          spacing={10}
-          position="sticky"
-          top="0"
-          bg="white"
-          zIndex="1000"
-          pt="5"
-          pb="2"
-          px="4"
-        >
-          <Avatar
-            name={subsite.name}
-            size="2xl"
-            src={`https://leonardo.osnova.io/${subsite.avatar.data.uuid}/-/scale_crop/300x300/-/format/webp/`}
-          />
-          <VStack>
-            <Heading size="lg">{subsite.name}</Heading>
-            <HStack justifyContent={"space-between"} minW="100%">
-              <RatingView>{subsite.rating}</RatingView>
-              <Stat>
-                <StatLabel>Создан</StatLabel>
-                <StatNumber>
-                  {format(subsite.created * 1000, "dd.LL.yy")}
-                </StatNumber>
-              </Stat>
-            </HStack>
-          </VStack>
-        </HStack>
+    <VStack align="start">
+      <HStack
+        spacing={10}
+        position="sticky"
+        top="0"
+        bg="white"
+        zIndex="1000"
+        pt="5"
+        pb="2"
+        px="4"
+      >
+        <Avatar
+          name={subsite.name}
+          size="2xl"
+          src={`https://leonardo.osnova.io/${subsite.avatar.data.uuid}/-/scale_crop/300x300/-/format/webp/`}
+        />
+        <VStack>
+          <Heading size="lg">{subsite.name}</Heading>
+          <HStack justifyContent={"space-between"} minW="100%">
+            <RatingView>{subsite.rating}</RatingView>
+            <Stat>
+              <StatLabel>Создан</StatLabel>
+              <StatNumber>
+                {format(subsite.created * 1000, "dd.LL.yy")}
+              </StatNumber>
+            </Stat>
+          </HStack>
+        </VStack>
+      </HStack>
 
-        <Tabs variant={"enclosed"}>
-          <TabList>
-            <Tab>Обзор</Tab>
-            <Tab>Посты</Tab>
-            <Tab>Комментарии</Tab>
-          </TabList>
-          <TabPanels>
-            <TabPanel>
-              <Overview subsite={subsite} />
-            </TabPanel>
-            <TabPanel>
-              <VStack
-                align="flex-start"
-                divider={<StackDivider />}
-                w="100%"
-                maxW="438px"
+      <Tabs variant={"enclosed"}>
+        <TabList>
+          <Tab>Обзор</Tab>
+          <Tab>Посты</Tab>
+          <Tab>Комментарии</Tab>
+        </TabList>
+        <TabPanels>
+          <TabPanel>
+            <Overview subsite={subsite} />
+          </TabPanel>
+          <TabPanel>
+            <VStack
+              align="flex-start"
+              divider={<StackDivider />}
+              w="100%"
+              maxW="438px"
+            >
+              <LazyLoadData<Osnova.Entry.EntriesResponse>
+                apiV="1.9"
+                url={`/user/${id}/entries`}
               >
-                <LazyLoadData<Osnova.Entry.EntriesResponse>
-                  apiV="1.9"
-                  url={`/user/${id}/entries`}
-                >
-                  {Entries}
-                </LazyLoadData>
-              </VStack>
-            </TabPanel>
-            <TabPanel>
-              <VStack
-                align="flex-start"
-                divider={<StackDivider />}
-                w="100%"
-                maxW="438px"
+                {Entries}
+              </LazyLoadData>
+            </VStack>
+          </TabPanel>
+          <TabPanel>
+            <VStack
+              align="flex-start"
+              divider={<StackDivider />}
+              w="100%"
+              maxW="438px"
+            >
+              <LazyLoadData<Osnova.Comment.CommentsResponse>
+                apiV="1.9"
+                url={`/user/${id}/comments`}
               >
-                <LazyLoadData<Osnova.Comment.CommentsResponse>
-                  apiV="1.9"
-                  url={`/user/${id}/comments`}
-                >
-                  {Comments}
-                </LazyLoadData>
-              </VStack>
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
-      </VStack>
-    </Context.Provider>
+                {Comments}
+              </LazyLoadData>
+            </VStack>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+    </VStack>
   );
 }
 
