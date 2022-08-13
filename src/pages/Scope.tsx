@@ -52,22 +52,22 @@ function Overview({
         <Stat>
           <StatLabel>Постов</StatLabel>
           <StatNumber>
-            {subsite?.counters?.entries || entries || "N/A"}
+            {subsite?.counters?.entries ?? entries ?? "N/A"}
           </StatNumber>
         </Stat>
         <Stat>
           <StatLabel>Комментариев</StatLabel>
           <StatNumber>
-            {subsite?.counters?.comments || comments || "N/A"}
+            {subsite?.counters?.comments ?? comments ?? "N/A"}
           </StatNumber>
         </Stat>
         <Stat>
           <StatLabel>Подписок</StatLabel>
-          <StatNumber>{subsite?.counters?.subscriptions || "N/A"}</StatNumber>
+          <StatNumber>{subsite?.counters?.subscriptions ?? "N/A"}</StatNumber>
         </Stat>
         <Stat>
           <StatLabel>Подписчиков</StatLabel>
-          <StatNumber>{subsite?.counters?.subscribers || "N/A"}</StatNumber>
+          <StatNumber>{subsite?.counters?.subscribers ?? "N/A"}</StatNumber>
         </Stat>
       </SimpleGrid>
 
@@ -372,7 +372,7 @@ function Header({
       <VStack>
         <Heading size="lg">{subsite.name}</Heading>
         <HStack justifyContent={"space-between"} minW="100%">
-          <RatingView>{subsite.rating || rating || "N/A"}</RatingView>
+          <RatingView>{subsite.rating ?? rating ?? "N/A"}</RatingView>
           <Stat>
             <StatLabel>Создан</StatLabel>
             <StatNumber>
