@@ -21,7 +21,7 @@ function Start() {
         size="lg"
         onChange={(ev) => setTarget(ev.target.value)}
       />
-      <InputRightElement width="6rem">
+      <InputRightElement width="6.7rem">
         <Button
           h="2.5rem"
           size="sm"
