@@ -17,7 +17,7 @@ function Start() {
     <InputGroup mt="4" px="2" size="lg">
       <Input
         pr="6.2rem"
-        placeholder="https://tjournal.ru/"
+        placeholder="https://tjournal.ru/u/490078"
         size="lg"
         onChange={(ev) => setTarget(ev.target.value)}
       />

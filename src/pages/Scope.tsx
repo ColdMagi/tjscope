@@ -35,7 +35,7 @@ import { useApi, useApiLazy } from "hooks/useFetch";
 import { useState } from "react";
 import { useEffect } from "react";
 import { PropsWithChildren, useMemo } from "react";
-import { Bar, Radar } from "react-chartjs-2";
+import { Bar, Line, Radar } from "react-chartjs-2";
 import { useSearchParams } from "react-router-dom";
 import { Osnova } from "types/osnova";
 import { getMonths, getTargetId } from "utils/common";
@@ -288,7 +288,7 @@ type ActivityChartData = {
   months: ChartData<"bar", number[], string>;
   days: ChartData<"bar", number[], string>;
   hours: ChartData<"radar", number[], string>;
-  ratingByEntity: ChartData<"bar", number[], string>;
+  ratingByEntity: ChartData<"line", number[], string>;
 };
 
 interface ActivityChartsProps {
@@ -320,7 +320,7 @@ function ActivityCharts({
       </VStack>
       <VStack w="100%">
         <Heading size="md">Оценки</Heading>
-        <Bar data={ratingByEntity} options={{ indexAxis: "y" }} />
+        <Line data={ratingByEntity} />
       </VStack>
     </>
   );
