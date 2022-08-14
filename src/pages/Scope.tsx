@@ -54,6 +54,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { Common } from "types/utils";
 
 ChartJS.register(
   CategoryScale,
@@ -287,7 +288,7 @@ type ActivityChartData = {
   months: ChartData<"bar", number[], string>;
   days: ChartData<"bar", number[], string>;
   hours: ChartData<"radar", number[], string>;
-  rating: ChartData<"bar", number[], string>;
+  ratingByEntity: ChartData<"bar", number[], string>;
 };
 
 interface ActivityChartsProps {
@@ -296,7 +297,7 @@ interface ActivityChartsProps {
 }
 
 function ActivityCharts({
-  data: { years, months, days, hours, rating },
+  data: { years, months, days, hours, ratingByEntity },
   options,
 }: ActivityChartsProps) {
   return (
@@ -319,7 +320,7 @@ function ActivityCharts({
       </VStack>
       <VStack w="100%">
         <Heading size="md">Оценки</Heading>
-        <Bar data={rating} options={{ indexAxis: "y" }} />
+        <Bar data={ratingByEntity} options={{ indexAxis: "y" }} />
       </VStack>
     </>
   );
@@ -341,10 +342,12 @@ function Activity({ comments, entries }: ActivityProps) {
     () =>
       function getStats<
         T extends {
-          result?: Array<{
-            date: number;
-            likes: { count: number; summ: number };
-          }>;
+          result?: Array<
+            Common<
+              Osnova.Entry.EntriesResponse["result"][0],
+              Osnova.Comment.CommentsResponse["result"][0]
+            >
+          >;
         }
       >(target: T, dsOpts = {}) {
         const d = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
@@ -354,7 +357,7 @@ function Activity({ comments, entries }: ActivityProps) {
           months: Record<string, number>;
           days: Record<string, number>;
           hours: Record<string, number>;
-          rating: { minus: number; plus: number };
+          ratingByEntity: Record<string, { minus: number; plus: number }>;
         } = {
           years: {},
           months: {
@@ -376,7 +379,7 @@ function Activity({ comments, entries }: ActivityProps) {
             22: 0,
             23: 0,
           },
-          rating: { minus: 0, plus: 0 },
+          ratingByEntity: {},
         };
         for (const el of target?.result || []) {
           const dt = new Date(el.date * 1000);
@@ -388,9 +391,10 @@ function Activity({ comments, entries }: ActivityProps) {
           stats.months[month] = (stats.months[month] || 0) + 1;
           stats.days[day] = (stats.days[day] || 0) + 1;
           stats.hours[hour] = (stats.hours[hour] || 0) + 1;
-          stats.rating.plus += el.likes.summ;
-          stats.rating.minus += el.likes.count - el.likes.summ;
+          stats.ratingByEntity[el.id].plus = el.likes.summ;
+          stats.ratingByEntity[el.id].minus = el.likes.count - el.likes.summ;
         }
+        const ratingByEntity = [...Object.values(stats.ratingByEntity)];
         return {
           years: {
             datasets: [
@@ -413,24 +417,24 @@ function Activity({ comments, entries }: ActivityProps) {
             datasets: [{ data: [...Object.values(stats.hours)], ...dsOpts }],
             labels: [...Object.keys(stats.hours)],
           },
-          rating: {
+          ratingByEntity: {
             datasets: [
               {
-                data: [stats.rating.minus],
+                data: [...ratingByEntity.map(({ minus }) => minus)],
                 label: "Отрицательные",
                 backgroundColor: "rgba(229,62,62, 0.2)",
                 borderColor: "rgb(229,62,62)",
                 borderWidth: 1,
               },
               {
-                data: [stats.rating.plus],
+                data: [...ratingByEntity.map(({ plus }) => plus)],
                 label: "Положительные",
                 backgroundColor: "rgba(72,187,120, 0.2)",
                 borderColor: "rgb(72,187,120)",
                 borderWidth: 1,
               },
             ],
-            labels: [""],
+            labels: [...Object.keys(stats.ratingByEntity)],
           },
         } as ActivityChartData;
       }
