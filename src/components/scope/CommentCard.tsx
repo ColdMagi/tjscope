@@ -1,6 +1,7 @@
 import { Avatar, Heading, HStack, VStack, Text } from "@chakra-ui/react";
 import { format } from "date-fns";
 import { Osnova } from "types/osnova";
+import { getRating } from "utils/rating";
 
 interface CommentCardProps {
   comment: Osnova.Comment.Comment;
@@ -16,6 +17,7 @@ function CommentCard({
     html,
   },
 }: CommentCardProps) {
+  const { minus, plus } = getRating({ count, summ });
   return (
     <VStack
       align={"flex-start"}
@@ -45,8 +47,8 @@ function CommentCard({
       <HStack justifyContent="space-between" minW="100%">
         <span />
         <HStack>
-          <Text color="red.300">{count - summ}</Text>
-          <Text color="green.300">{summ}</Text>
+          <Text color="red.300">{minus}</Text>
+          <Text color="green.300">{plus}</Text>
         </HStack>
       </HStack>
     </VStack>

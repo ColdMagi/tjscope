@@ -1,6 +1,7 @@
 import { Avatar, Heading, HStack, Image, Text, VStack } from "@chakra-ui/react";
 import { format } from "date-fns";
 import { Osnova } from "types/osnova";
+import { getRating } from "utils/rating";
 
 interface EntryCardProps {
   entry: Osnova.Entry.Entry;
@@ -17,6 +18,7 @@ function EntryCard({
     subsite: { avatar_url, name },
   },
 }: EntryCardProps) {
+  const { minus, plus } = getRating({ count, summ });
   return (
     <VStack
       align={"flex-start"}
@@ -56,8 +58,8 @@ function EntryCard({
           {hitsCount} просмотров
         </Text>
         <HStack>
-          <Text color="red.300">{count - summ}</Text>
-          <Text color="green.300">{summ}</Text>
+          <Text color="red.300">{minus}</Text>
+          <Text color="green.300">{plus}</Text>
         </HStack>
       </HStack>
     </VStack>
