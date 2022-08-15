@@ -54,6 +54,7 @@ import {
   Legend,
 } from "chart.js";
 import { ActivityChartData, getStats } from "utils/charts";
+import { getRating } from "utils/rating";
 
 ChartJS.register(
   CategoryScale,
@@ -140,6 +141,7 @@ function Entries({ data }: { data: Osnova.Entry.EntriesResponse | undefined }) {
     const result = {
       rating: 0,
       ratingCount: 0,
+      ratingMinus: 0,
       comments: 0,
       reposts: 0,
       hits: 0,
@@ -148,21 +150,22 @@ function Entries({ data }: { data: Osnova.Entry.EntriesResponse | undefined }) {
       mostDisliked: (data?.result || [])[0],
     };
     for (const entry of data?.result || []) {
-      result.rating += entry.likes.summ;
-      result.ratingCount += entry.likes.count;
+      const { minus, plus } = getRating(entry.likes);
+      result.rating += plus - minus;
+      result.ratingCount += plus;
+      result.ratingMinus += minus;
       result.comments += entry.commentsCount;
       result.reposts += Number(entry.isRepost);
       result.hits += entry.hitsCount;
+      const { plus: pPlus } = getRating(result.mostLiked.likes);
+      const { minus: pMinus } = getRating(result.mostDisliked.likes);
       if (entry.hitsCount > result.mostHits.hitsCount) {
         result.mostHits = entry;
       }
-      if (entry.likes.summ > result.mostLiked.likes.summ) {
+      if (plus > pPlus) {
         result.mostLiked = entry;
       }
-      if (
-        entry.likes.count - entry.likes.summ >
-        result.mostDisliked.likes.count - result.mostDisliked.likes.summ
-      ) {
+      if (minus > pMinus) {
         result.mostDisliked = entry;
       }
     }
@@ -194,10 +197,8 @@ function Entries({ data }: { data: Osnova.Entry.EntriesResponse | undefined }) {
               minW="100%"
             >
               <RatingView>{stats.rating}</RatingView>
-              <RatingView label="Оценок">{stats.ratingCount}</RatingView>
-              <RatingView label="Оценки [минус]">
-                {stats.ratingCount - stats.rating}
-              </RatingView>
+              <RatingView label="Оценок [+]">{stats.ratingCount}</RatingView>
+              <RatingView label="Оценки [-]">{stats.ratingMinus}</RatingView>
               <Stat>
                 <StatLabel>Комментариев</StatLabel>
                 <StatNumber>{stats.comments}</StatNumber>
