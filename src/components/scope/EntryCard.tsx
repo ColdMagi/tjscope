@@ -38,7 +38,6 @@ function EntryCard({
   },
 }: EntryCardProps) {
   const { minus, plus } = getRating({ count, summ });
-  console.log({ entry });
   return (
     <VStack
       align={"flex-start"}
