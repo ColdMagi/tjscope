@@ -38,10 +38,9 @@ import { PropsWithChildren, useMemo } from "react";
 import { Bar, Line, Radar } from "react-chartjs-2";
 import { useSearchParams } from "react-router-dom";
 import { Osnova } from "types/osnova";
-import { getMonths, getTargetId } from "utils/common";
+import { getTargetId } from "utils/common";
 
 import {
-  ChartData,
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
@@ -54,7 +53,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { Common } from "types/utils";
+import { ActivityChartData, getStats } from "utils/charts";
 
 ChartJS.register(
   CategoryScale,
@@ -170,51 +169,72 @@ function Entries({ data }: { data: Osnova.Entry.EntriesResponse | undefined }) {
     return result;
   }, [data]);
 
+  const options = useConst({ plugins: { legend: { display: false } } });
+  const entryDatasetOptions = useConst({
+    borderColor: "rgb(237,137,54)",
+    backgroundColor: "rgba(237,137,54,0.4)",
+    borderWidth: 1,
+  });
+
+  const charts = getStats(data || {}, entryDatasetOptions);
+
   return (
-    <VStack align="flex-start" w="100%" pl="2" spacing={4}>
-      <SimpleGrid
-        columns={3}
-        spacing={1}
-        justifyContent="space-between"
-        minW="100%"
-      >
-        <RatingView>{stats.rating}</RatingView>
-        <RatingView label="Оценок">{stats.ratingCount}</RatingView>
-        <RatingView label="Оценки [минус]">
-          {stats.ratingCount - stats.rating}
-        </RatingView>
-        <Stat>
-          <StatLabel>Комментариев</StatLabel>
-          <StatNumber>{stats.comments}</StatNumber>
-        </Stat>
-        <Stat>
-          <StatLabel>Просмотров</StatLabel>
-          <StatNumber>{stats.hits}</StatNumber>
-        </Stat>
-        <Stat>
-          <StatLabel>Репостов</StatLabel>
-          <StatNumber>{stats.reposts}</StatNumber>
-        </Stat>
-      </SimpleGrid>
+    <Tabs variant={"enclosed"} isFitted w="100%">
+      <TabList w="100%">
+        <Tab>Статистика</Tab>
+        <Tab>Активность</Tab>
+      </TabList>
+      <TabPanels w="100%">
+        <TabPanel>
+          <VStack align="flex-start" w="100%" pl="2" spacing={4}>
+            <SimpleGrid
+              columns={{ base: 2, md: 3 }}
+              spacing={1}
+              justifyContent="space-between"
+              minW="100%"
+            >
+              <RatingView>{stats.rating}</RatingView>
+              <RatingView label="Оценок">{stats.ratingCount}</RatingView>
+              <RatingView label="Оценки [минус]">
+                {stats.ratingCount - stats.rating}
+              </RatingView>
+              <Stat>
+                <StatLabel>Комментариев</StatLabel>
+                <StatNumber>{stats.comments}</StatNumber>
+              </Stat>
+              <Stat>
+                <StatLabel>Просмотров</StatLabel>
+                <StatNumber>{stats.hits}</StatNumber>
+              </Stat>
+              <Stat>
+                <StatLabel>Репостов</StatLabel>
+                <StatNumber>{stats.reposts}</StatNumber>
+              </Stat>
+            </SimpleGrid>
+            {stats.mostHits && (
+              <StatCat label="Наиболее просматриваемый">
+                <EntryCard entry={stats.mostHits} />
+              </StatCat>
+            )}
 
-      {stats.mostHits && (
-        <StatCat label="Наиболее просматриваемый">
-          <EntryCard entry={stats.mostHits} />
-        </StatCat>
-      )}
+            {stats.mostLiked && (
+              <StatCat label="Наибольшее количество плюсов">
+                <EntryCard entry={stats.mostLiked} />
+              </StatCat>
+            )}
 
-      {stats.mostLiked && (
-        <StatCat label="Наибольшее количество плюсов">
-          <EntryCard entry={stats.mostLiked} />
-        </StatCat>
-      )}
-
-      {stats.mostDisliked && (
-        <StatCat label="Наибольшее количество минусов">
-          <EntryCard entry={stats.mostDisliked} />
-        </StatCat>
-      )}
-    </VStack>
+            {stats.mostDisliked && (
+              <StatCat label="Наибольшее количество минусов">
+                <EntryCard entry={stats.mostDisliked} />
+              </StatCat>
+            )}
+          </VStack>
+        </TabPanel>
+        <TabPanel>
+          <ActivityCharts data={charts} options={options} />
+        </TabPanel>
+      </TabPanels>
+    </Tabs>
   );
 }
 
@@ -246,50 +266,59 @@ function Comments({
     return result;
   }, [data]);
 
+  const options = useConst({ plugins: { legend: { display: false } } });
+  const commentDatasetOptions = useConst({
+    borderColor: "rgb(49,130,206)",
+    backgroundColor: "rgba(49,130,206,0.4)",
+    borderWidth: 1,
+  });
+
+  const charts = getStats(data || {}, commentDatasetOptions);
+
   return (
-    <VStack align="flex-start" w="100%" pl="2" spacing={4}>
-      <SimpleGrid
-        columns={3}
-        spacing={1}
-        justifyContent="space-between"
-        minW="100%"
-      >
-        <RatingView>{stats.rating}</RatingView>
-        <RatingView label="Оценок">{stats.ratingCount}</RatingView>
-        <RatingView label="Оценки [минус]">
-          {stats.ratingCount - stats.rating}
-        </RatingView>
-      </SimpleGrid>
+    <Tabs variant={"enclosed"} isFitted w="100%">
+      <TabList>
+        <Tab>Статистика</Tab>
+        <Tab>Активность</Tab>
+      </TabList>
+      <TabPanels>
+        <TabPanel>
+          <VStack align="flex-start" w="100%" pl="2" spacing={4}>
+            <SimpleGrid
+              columns={3}
+              spacing={1}
+              justifyContent="space-between"
+              minW="100%"
+            >
+              <RatingView>{stats.rating}</RatingView>
+              <RatingView label="Оценок">{stats.ratingCount}</RatingView>
+              <RatingView label="Оценки [минус]">
+                {stats.ratingCount - stats.rating}
+              </RatingView>
+            </SimpleGrid>
 
-      {stats.mostLiked && (
-        <StatCat label="Наибольшее количество плюсов">
-          <CommentCard comment={stats.mostLiked} />
-        </StatCat>
-      )}
+            {stats.mostLiked && (
+              <StatCat label="Наибольшее количество плюсов">
+                <CommentCard comment={stats.mostLiked} />
+              </StatCat>
+            )}
 
-      {stats.mostDisliked && (
-        <StatCat label="Наибольшее количество минусов">
-          <CommentCard comment={stats.mostDisliked} />
-        </StatCat>
-      )}
-    </VStack>
+            {stats.mostDisliked && (
+              <StatCat label="Наибольшее количество минусов">
+                <CommentCard comment={stats.mostDisliked} />
+              </StatCat>
+            )}
+          </VStack>
+        </TabPanel>
+        <TabPanel>
+          <ActivityCharts data={charts} options={options} />
+        </TabPanel>
+      </TabPanels>
+    </Tabs>
   );
 }
 
 //#region Activity
-
-interface ActivityProps {
-  comments: Osnova.Comment.CommentsResponse;
-  entries: Osnova.Entry.EntriesResponse;
-}
-
-type ActivityChartData = {
-  years: ChartData<"bar", number[], string>;
-  months: ChartData<"bar", number[], string>;
-  days: ChartData<"bar", number[], string>;
-  hours: ChartData<"radar", number[], string>;
-  ratingByEntity: ChartData<"line", number[], string>;
-};
 
 interface ActivityChartsProps {
   data: ActivityChartData;
@@ -323,147 +352,6 @@ function ActivityCharts({
         <Line data={ratingByEntity} />
       </VStack>
     </>
-  );
-}
-
-function Activity({ comments, entries }: ActivityProps) {
-  const options = useConst({ plugins: { legend: { display: false } } });
-  const commentDatasetOptions = useConst({
-    borderColor: "rgb(49,130,206)",
-    backgroundColor: "rgba(49,130,206,0.4)",
-    borderWidth: 1,
-  });
-  const entryDatasetOptions = useConst({
-    borderColor: "rgb(237,137,54)",
-    backgroundColor: "rgba(237,137,54,0.4)",
-    borderWidth: 1,
-  });
-  const getStats = useConst(
-    () =>
-      function getStats<
-        T extends {
-          result?: Array<
-            Common<
-              Osnova.Entry.EntriesResponse["result"][0],
-              Osnova.Comment.CommentsResponse["result"][0]
-            >
-          >;
-        }
-      >(target: T, dsOpts = {}) {
-        const d = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
-        const dd = { ...d, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0 };
-        const stats: {
-          years: Record<string, number>;
-          months: Record<string, number>;
-          days: Record<string, number>;
-          hours: Record<string, number>;
-          ratingByEntity: Record<string, { minus: number; plus: number }>;
-        } = {
-          years: {},
-          months: {
-            ...dd,
-          },
-          days: { ...d },
-          hours: {
-            ...d,
-            12: 0,
-            13: 0,
-            14: 0,
-            15: 0,
-            16: 0,
-            17: 0,
-            18: 0,
-            19: 0,
-            20: 0,
-            21: 0,
-            22: 0,
-            23: 0,
-          },
-          ratingByEntity: {},
-        };
-        for (const el of target?.result || []) {
-          const dt = new Date(el.date * 1000);
-          const year = dt.getUTCFullYear();
-          const month = dt.getUTCMonth();
-          const day = dt.getUTCDay();
-          const hour = dt.getUTCHours();
-          stats.years[year] = (stats.years[year] || 0) + 1;
-          stats.months[month] = (stats.months[month] || 0) + 1;
-          stats.days[day] = (stats.days[day] || 0) + 1;
-          stats.hours[hour] = (stats.hours[hour] || 0) + 1;
-          stats.ratingByEntity[el.id] = { plus: 0, minus: 0 };
-          stats.ratingByEntity[el.id].plus = el.likes.summ;
-          stats.ratingByEntity[el.id].minus = el.likes.count - el.likes.summ;
-        }
-        const ratingByEntity = [...Object.values(stats.ratingByEntity)];
-        return {
-          years: {
-            datasets: [
-              {
-                data: [...Object.values(stats.years)],
-                ...dsOpts,
-              },
-            ],
-            labels: [...Object.keys(stats.years)],
-          },
-          months: {
-            datasets: [{ data: [...Object.values(stats.months)], ...dsOpts }],
-            labels: [...getMonths()],
-          },
-          days: {
-            datasets: [{ data: [...Object.values(stats.days)], ...dsOpts }],
-            labels: ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
-          },
-          hours: {
-            datasets: [{ data: [...Object.values(stats.hours)], ...dsOpts }],
-            labels: [...Object.keys(stats.hours)],
-          },
-          ratingByEntity: {
-            datasets: [
-              {
-                data: [...ratingByEntity.map(({ minus }) => minus)],
-                label: "Отрицательные",
-                backgroundColor: "rgba(229,62,62, 0.2)",
-                borderColor: "rgb(229,62,62)",
-                borderWidth: 1,
-              },
-              {
-                data: [...ratingByEntity.map(({ plus }) => plus)],
-                label: "Положительные",
-                backgroundColor: "rgba(72,187,120, 0.2)",
-                borderColor: "rgb(72,187,120)",
-                borderWidth: 1,
-              },
-            ],
-            labels: [...Object.keys(stats.ratingByEntity)],
-          },
-        } as ActivityChartData;
-      }
-  );
-
-  const commentsStats = useMemo(() => {
-    return getStats(comments, commentDatasetOptions);
-  }, [comments, commentDatasetOptions, getStats]);
-
-  const entriesStats = useMemo(() => {
-    return getStats(entries, entryDatasetOptions);
-  }, [entries, entryDatasetOptions, getStats]);
-
-  return (
-    <Tabs isFitted variant="enclosed" w="100%">
-      <TabList w="100%">
-        <Tab>Посты</Tab>
-        <Tab>Комментарии</Tab>
-      </TabList>
-      <TabPanels w="100%">
-        <TabPanel w="100%">
-          <ActivityCharts data={entriesStats} options={options} />
-        </TabPanel>
-        <TabPanel w="100%">
-          <ActivityCharts data={commentsStats} options={options} />
-        </TabPanel>
-      </TabPanels>
-    </Tabs>
   );
 }
 
@@ -777,7 +665,7 @@ function Scope() {
   };
 
   return (
-    <VStack align="start">
+    <VStack>
       {error && (
         <VStack align="start">
           <Heading>
@@ -805,6 +693,7 @@ function Scope() {
         variant={"soft-rounded"}
         size={{ base: "sm", md: "md" }}
         maxW="100%"
+        w="100%"
       >
         <TabList
           minW="0"
@@ -820,7 +709,6 @@ function Scope() {
           <Tab>Обзор</Tab>
           <Tab>Посты</Tab>
           <Tab>Комментарии</Tab>
-          <Tab>Активность</Tab>
           <Tab>Итог</Tab>
         </TabList>
         <TabPanels>
@@ -840,9 +728,6 @@ function Scope() {
             <VStack align="flex-start" divider={<StackDivider />}>
               <Comments data={comments} />
             </VStack>
-          </TabPanel>
-          <TabPanel>
-            <Activity comments={comments} entries={entries} />
           </TabPanel>
           <TabPanel>
             <Total comments={comments} />
