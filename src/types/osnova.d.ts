@@ -231,6 +231,7 @@ namespace Osnova {
     export interface BlockData {
       text?: string;
       text_truncated?: TextTruncated;
+      markdown?: string;
       items?: Item[];
     }
 
@@ -246,6 +247,7 @@ namespace Osnova {
     export enum BlockType {
       Media = "media",
       Text = "text",
+      Tweet = "tweet",
     }
 
     export interface CommentEditor {

@@ -1,10 +1,26 @@
-import { Avatar, Heading, HStack, Image, Text, VStack } from "@chakra-ui/react";
+import {
+  Avatar,
+  Box,
+  Heading,
+  HStack,
+  Image,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
 import { format } from "date-fns";
 import { Osnova } from "types/osnova";
 import { getRating } from "utils/rating";
 
 interface EntryCardProps {
   entry: Osnova.Entry.Entry;
+}
+
+function Tweet({ data: { markdown } }: Osnova.Entry.Block) {
+  return (
+    <Box p="3" rounded="lg" borderColor="gray.300" borderWidth="1px">
+      {markdown}
+    </Box>
+  );
 }
 
 function EntryCard({
@@ -16,9 +32,13 @@ function EntryCard({
     likes: { count, summ },
     cover,
     subsite: { avatar_url, name },
+    title,
+    blocks,
+    ...entry
   },
 }: EntryCardProps) {
   const { minus, plus } = getRating({ count, summ });
+  console.log({ entry });
   return (
     <VStack
       align={"flex-start"}
@@ -43,6 +63,7 @@ function EntryCard({
         </Text>
       </HStack>
       <VStack pl="8">
+        {title && <Heading size="sm">{title}</Heading>}
         <Text>{intro}</Text>
         {cover && (
           <Image
@@ -51,6 +72,9 @@ function EntryCard({
             objectFit={"contain"}
             pointerEvents={"none"}
           />
+        )}
+        {blocks && blocks[0] && blocks[0].type === "tweet" && (
+          <Tweet {...blocks[0]} />
         )}
       </VStack>
       <HStack justifyContent="space-between" minW="100%">
