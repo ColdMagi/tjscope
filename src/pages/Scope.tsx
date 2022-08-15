@@ -391,6 +391,7 @@ function Activity({ comments, entries }: ActivityProps) {
           stats.months[month] = (stats.months[month] || 0) + 1;
           stats.days[day] = (stats.days[day] || 0) + 1;
           stats.hours[hour] = (stats.hours[hour] || 0) + 1;
+          stats.ratingByEntity[el.id] = { plus: 0, minus: 0 };
           stats.ratingByEntity[el.id].plus = el.likes.summ;
           stats.ratingByEntity[el.id].minus = el.likes.count - el.likes.summ;
         }
