@@ -140,7 +140,7 @@ function Entries({ data }: { data: Osnova.Entry.EntriesResponse | undefined }) {
   const stats = useMemo(() => {
     const result = {
       rating: 0,
-      ratingCount: 0,
+      ratingPlus: 0,
       ratingMinus: 0,
       comments: 0,
       reposts: 0,
@@ -152,7 +152,7 @@ function Entries({ data }: { data: Osnova.Entry.EntriesResponse | undefined }) {
     for (const entry of data?.result || []) {
       const { minus, plus } = getRating(entry.likes);
       result.rating += plus - minus;
-      result.ratingCount += plus;
+      result.ratingPlus += plus;
       result.ratingMinus += minus;
       result.comments += entry.commentsCount;
       result.reposts += Number(entry.isRepost);
@@ -197,7 +197,7 @@ function Entries({ data }: { data: Osnova.Entry.EntriesResponse | undefined }) {
               minW="100%"
             >
               <RatingView>{stats.rating}</RatingView>
-              <RatingView label="Оценок [+]">{stats.ratingCount}</RatingView>
+              <RatingView label="Оценок [+]">{stats.ratingPlus}</RatingView>
               <RatingView label="Оценки [-]">{stats.ratingMinus}</RatingView>
               <Stat>
                 <StatLabel>Комментариев</StatLabel>
@@ -247,20 +247,22 @@ function Comments({
   const stats = useMemo(() => {
     const result = {
       rating: 0,
-      ratingCount: 0,
+      ratingPlus: 0,
+      ratingMinus: 0,
       mostLiked: (data?.result || [])[0],
       mostDisliked: (data?.result || [])[0],
     };
     for (const entry of data?.result || []) {
-      result.rating += entry.likes.summ;
-      result.ratingCount += entry.likes.count;
-      if (entry.likes.summ > result.mostLiked.likes.summ) {
+      const { plus, minus } = getRating(entry.likes);
+      result.rating += plus - minus;
+      result.ratingPlus += plus;
+      result.ratingMinus += minus;
+      const { plus: pPlus } = getRating(result.mostLiked.likes);
+      const { minus: pMinus } = getRating(result.mostDisliked.likes);
+      if (plus > pPlus) {
         result.mostLiked = entry;
       }
-      if (
-        entry.likes.count - entry.likes.summ >
-        result.mostDisliked.likes.count - result.mostDisliked.likes.summ
-      ) {
+      if (minus > pMinus) {
         result.mostDisliked = entry;
       }
     }
@@ -292,10 +294,8 @@ function Comments({
               minW="100%"
             >
               <RatingView>{stats.rating}</RatingView>
-              <RatingView label="Оценок">{stats.ratingCount}</RatingView>
-              <RatingView label="Оценки [минус]">
-                {stats.ratingCount - stats.rating}
-              </RatingView>
+              <RatingView label="Оценок [+]">{stats.ratingPlus}</RatingView>
+              <RatingView label="Оценки [-]">{stats.ratingMinus}</RatingView>
             </SimpleGrid>
 
             {stats.mostLiked && (
