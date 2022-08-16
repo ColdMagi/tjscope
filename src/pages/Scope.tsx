@@ -42,6 +42,7 @@ import { getTargetId } from "utils/common";
 import { getStats } from "utils/charts";
 import { getRating } from "utils/rating";
 import ActivityCharts from "components/chart/Activity";
+import StatCat from "components/scope/StatCat";
 
 function Overview({
   subsite,
@@ -97,15 +98,6 @@ function Overview({
           <StatNumber>{<BooleanText value={subsite?.isVerified} />}</StatNumber>
         </Stat>
       </SimpleGrid>
-    </VStack>
-  );
-}
-
-function StatCat({ label, children }: PropsWithChildren<{ label: string }>) {
-  return (
-    <VStack align="flex-start" minW="100%">
-      <Heading size="md">{label}</Heading>
-      {children}
     </VStack>
   );
 }
