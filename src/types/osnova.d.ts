@@ -775,6 +775,16 @@ namespace Osnova {
       avatar_url: string;
     }
   }
+
+  export namespace Likers {
+    export type Liker = {
+      minus: number;
+      plus: number;
+      name: string;
+      avatar_url: string;
+    };
+    export type Likers = Record<string, Liker>;
+  }
 }
 
 export { Osnova };

@@ -9,11 +9,9 @@ import {
   Td,
 } from "@chakra-ui/react";
 import User from "components/User";
+import type { Osnova } from "types/osnova";
 
-type Liker = { minus: number; plus: number; name: string; avatar_url: string };
-export type Likers = Record<string, Liker>;
-
-function TotalTable({ likers }: { likers: Likers }) {
+function TotalTable({ likers }: { likers: Osnova.Likers.Likers }) {
   return (
     <TableContainer>
       <Table variant="simple" size={{ base: "sm", md: "md", lg: "lg" }}>
