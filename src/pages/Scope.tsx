@@ -1,6 +1,5 @@
 import {
   Heading,
-  StackDivider,
   Tab,
   TabList,
   TabPanel,
@@ -91,14 +90,10 @@ function Scope() {
             />
           </TabPanel>
           <TabPanel>
-            <VStack align="flex-start" divider={<StackDivider />}>
-              <Entries data={entries} />
-            </VStack>
+            <Entries data={entries} />
           </TabPanel>
           <TabPanel>
-            <VStack align="flex-start" divider={<StackDivider />}>
-              <Comments data={comments} />
-            </VStack>
+            <Comments data={comments} />
           </TabPanel>
           <TabPanel>
             <Total comments={comments} />
