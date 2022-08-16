@@ -6,7 +6,6 @@ import {
   SimpleGrid,
   StackDivider,
   Stat,
-  StatHelpText,
   StatLabel,
   StatNumber,
   Tab,
@@ -25,12 +24,12 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Osnova } from "types/osnova";
+import type { Osnova } from "types/osnova";
 import { getTargetId } from "utils/common";
 import Entries from "modules/Entries";
 import Comments from "modules/Comments";
-import TotalTable, { Likers } from "components/scope/TotalTable";
-import User from "components/User";
+import TotalTable from "components/scope/TotalTable";
+import RatingByUser from "components/scope/Stat/RatingByUser";
 
 function Overview({
   subsite,
@@ -96,28 +95,10 @@ interface TotalProps {
   comments: Osnova.Comment.CommentsResponse;
 }
 
-function ShowRatingPlusMinus({
-  source: { plus, minus },
-}: {
-  source: { plus: number; minus: number };
-}) {
-  return (
-    <HStack spacing={2}>
-      <Text fontSize="16px" as="span" color="green.300">
-        {plus}
-      </Text>
-      <Text fontSize="16px" as="span" color="red.300">
-        {minus}
-      </Text>
-      <Text fontSize="16px" as="span" color="gray.500">
-        {plus + minus ?? "N/A"}
-      </Text>
-    </HStack>
-  );
-}
-
 function Total({ comments }: TotalProps) {
-  const [commentsLikers, setCommentsLikers] = useState<Likers>({});
+  const [commentsLikers, setCommentsLikers] = useState<Osnova.Likers.Likers>(
+    {}
+  );
   const [commentIndex, setCommentIndex] = useState(0);
   const { data } = useApi<Osnova.Comment.LikersResponse>(
     `/comment/likers/${(comments?.result || [])[commentIndex]?.id}`,
@@ -184,49 +165,13 @@ function Total({ comments }: TotalProps) {
         minW="100%"
       >
         {!!+commentStats.plus.id && (
-          <Stat>
-            <StatLabel>Больше всего плюсов</StatLabel>
-            <StatNumber>
-              <User
-                name={commentStats.plus.name}
-                avatar_url={commentStats.plus.avatar_url}
-                id={commentStats.plus.id}
-              />
-            </StatNumber>
-            <StatHelpText pl="14">
-              <ShowRatingPlusMinus source={commentStats.plus} />
-            </StatHelpText>
-          </Stat>
+          <RatingByUser {...commentStats.plus} label="Больше всего плюсов" />
         )}
         {!!+commentStats.minus.id && (
-          <Stat>
-            <StatLabel>Больше всего минусов</StatLabel>
-            <StatNumber>
-              <User
-                name={commentStats.minus.name}
-                avatar_url={commentStats.minus.avatar_url}
-                id={commentStats.minus.id}
-              />
-            </StatNumber>
-            <StatHelpText pl="14">
-              <ShowRatingPlusMinus source={commentStats.minus} />
-            </StatHelpText>
-          </Stat>
+          <RatingByUser {...commentStats.minus} label="Больше всего минусов" />
         )}
         {!!+commentStats.total.id && (
-          <Stat>
-            <StatLabel>Больше всего оценок</StatLabel>
-            <StatNumber>
-              <User
-                name={commentStats.total.name}
-                avatar_url={commentStats.total.avatar_url}
-                id={commentStats.total.id}
-              />
-            </StatNumber>
-            <StatHelpText pl="14">
-              <ShowRatingPlusMinus source={commentStats.total} />
-            </StatHelpText>
-          </Stat>
+          <RatingByUser {...commentStats.total} label="Больше всего оценок" />
         )}
       </SimpleGrid>
 
