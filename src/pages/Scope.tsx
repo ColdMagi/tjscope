@@ -40,34 +40,8 @@ import { useSearchParams } from "react-router-dom";
 import { Osnova } from "types/osnova";
 import { getTargetId } from "utils/common";
 
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  RadialLinearScale,
-  PointElement,
-  BarElement,
-  LineElement,
-  Filler,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
 import { ActivityChartData, getStats } from "utils/charts";
 import { getRating } from "utils/rating";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  RadialLinearScale,
-  BarElement,
-  PointElement,
-  LineElement,
-  Filler,
-  Title,
-  Tooltip,
-  Legend
-);
 
 function Overview({
   subsite,

@@ -7,8 +7,35 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import { lazy } from "react";
 
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  RadialLinearScale,
+  PointElement,
+  BarElement,
+  LineElement,
+  Filler,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+
 const Start = lazy(() => import("./pages/Start"));
 const Scope = lazy(() => import("./pages/Scope"));
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  RadialLinearScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  Filler,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
