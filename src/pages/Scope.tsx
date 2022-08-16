@@ -10,19 +10,11 @@ import {
   StatLabel,
   StatNumber,
   Tab,
-  Table,
-  TableCaption,
-  TableContainer,
   TabList,
   TabPanel,
   TabPanels,
   Tabs,
-  Tbody,
-  Td,
   Text,
-  Th,
-  Thead,
-  Tr,
   VStack,
 } from "@chakra-ui/react";
 import BooleanText from "components/atoms/BooleanText";
@@ -31,12 +23,14 @@ import { format, isValid } from "date-fns";
 import { useApi, useApiLazy } from "hooks/useFetch";
 import { useState } from "react";
 import { useEffect } from "react";
-import { PropsWithChildren, useMemo } from "react";
+import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Osnova } from "types/osnova";
 import { getTargetId } from "utils/common";
 import Entries from "modules/Entries";
 import Comments from "modules/Comments";
+import TotalTable, { Likers } from "components/scope/TotalTable";
+import User from "components/User";
 
 function Overview({
   subsite,
@@ -119,76 +113,6 @@ function ShowRatingPlusMinus({
         {plus + minus ?? "N/A"}
       </Text>
     </HStack>
-  );
-}
-
-interface UserProps {
-  name: string;
-  avatar_url: string;
-  id: number | string;
-  size?: "sm" | "md";
-}
-
-function User({
-  name,
-  avatar_url,
-  id,
-  children,
-  size = "md",
-}: PropsWithChildren<UserProps>) {
-  return (
-    <HStack as="a" href={`https://tjournal.ru/u/${id}`} target="_blank">
-      <Avatar size={size} name={name} src={avatar_url} />
-      <Text
-        fontSize={size === "md" ? "18px" : "14px"}
-        as="b"
-        maxW={{ base: "150px", md: "180px", lg: "200px" }}
-        textOverflow={"ellipsis"}
-        overflow="hidden"
-      >
-        {name}
-      </Text>
-      {children}
-    </HStack>
-  );
-}
-
-type Liker = { minus: number; plus: number; name: string; avatar_url: string };
-type Likers = Record<string, Liker>;
-
-function TotalTable({ likers }: { likers: Likers }) {
-  return (
-    <TableContainer>
-      <Table variant="simple" size={{ base: "sm", md: "md", lg: "lg" }}>
-        <TableCaption>Статистика оценок по пользователям</TableCaption>
-        <Thead>
-          <Tr>
-            <Th>Пользователь</Th>
-            <Th isNumeric color="green.300">
-              +
-            </Th>
-            <Th isNumeric color="red.300">
-              -
-            </Th>
-            <Th isNumeric>Всего</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {[...Object.entries(likers)]
-            .sort(([_, a], [_0, b]) => b.plus + b.minus - (a.plus + a.minus))
-            .map(([id, { name, avatar_url, minus, plus }]) => (
-              <Tr key={id}>
-                <Td>
-                  <User name={name} avatar_url={avatar_url} id={id} />
-                </Td>
-                <Td>{plus}</Td>
-                <Td>{minus}</Td>
-                <Td>{minus + plus}</Td>
-              </Tr>
-            ))}
-        </Tbody>
-      </Table>
-    </TableContainer>
   );
 }
 
