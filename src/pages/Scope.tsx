@@ -2,7 +2,6 @@ import {
   Avatar,
   Heading,
   HStack,
-  SimpleGrid,
   StackDivider,
   Stat,
   StatLabel,
@@ -15,7 +14,6 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import BooleanText from "components/atoms/BooleanText";
 import RatingView from "components/scope/RatingView";
 import { format, isValid } from "date-fns";
 import { useApi, useApiLazy } from "hooks/useFetch";
@@ -26,68 +24,7 @@ import { getTargetId } from "utils/common";
 import Entries from "modules/Entries";
 import Comments from "modules/Comments";
 import Total from "modules/Total";
-
-function Overview({
-  subsite,
-  entries,
-  comments,
-}: {
-  subsite: Osnova.Subsite.Subsite;
-  entries?: number;
-  comments?: number;
-}) {
-  return (
-    <VStack divider={<StackDivider />}>
-      <SimpleGrid
-        columns={{ base: 2, sm: 4 }}
-        spacing={3}
-        justifyContent="space-between"
-        w="100%"
-      >
-        <Stat>
-          <StatLabel>Постов</StatLabel>
-          <StatNumber>
-            {subsite?.counters?.entries ?? entries ?? "N/A"}
-          </StatNumber>
-        </Stat>
-        <Stat>
-          <StatLabel>Комментариев</StatLabel>
-          <StatNumber>
-            {subsite?.counters?.comments ?? comments ?? "N/A"}
-          </StatNumber>
-        </Stat>
-        <Stat>
-          <StatLabel>Подписок</StatLabel>
-          <StatNumber>{subsite?.counters?.subscriptions ?? "N/A"}</StatNumber>
-        </Stat>
-        <Stat>
-          <StatLabel>Подписчиков</StatLabel>
-          <StatNumber>{subsite?.counters?.subscribers ?? "N/A"}</StatNumber>
-        </Stat>
-      </SimpleGrid>
-
-      <SimpleGrid
-        columns={2}
-        spacing={3}
-        justifyContent="space-between"
-        w="100%"
-      >
-        <Stat>
-          <StatLabel>Plus</StatLabel>
-          <StatNumber>{<BooleanText value={subsite?.isPlus} />}</StatNumber>
-        </Stat>
-        <Stat>
-          <StatLabel>Подтвержден</StatLabel>
-          <StatNumber>{<BooleanText value={subsite?.isVerified} />}</StatNumber>
-        </Stat>
-      </SimpleGrid>
-    </VStack>
-  );
-}
-
-//#region Total
-
-//#endregion
+import Overview from "modules/Overview";
 
 function Header({
   subsite,
