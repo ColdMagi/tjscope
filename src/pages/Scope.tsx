@@ -9,34 +9,21 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { useApi, useApiLazy } from "hooks/useFetch";
 import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import type { Osnova } from "types/osnova";
 import { getTargetId } from "utils/common";
 import Entries from "modules/Entries";
 import Comments from "modules/Comments";
 import Total from "modules/Total";
 import Overview from "modules/Overview";
 import Header from "components/scope/parts/Header";
+import useScope from "hooks/useScope";
 
 function Scope() {
   const [searchParams] = useSearchParams();
   const id = getTargetId(searchParams.get("id") || "");
 
-  const { data, error } = useApi<Osnova.Subsite.SubsiteResponse>(
-    `/subsite?id=${id}`
-  );
-  const entries = useApiLazy<Osnova.Entry.EntriesResponse>(
-    `/user/${id}/entries`,
-    undefined,
-    "1.9"
-  );
-  const comments = useApiLazy<Osnova.Comment.CommentsResponse>(
-    `/user/${id}/comments`,
-    undefined,
-    "1.9"
-  );
+  const { subsite, subsiteError, entries, comments } = useScope(id);
 
   const entriesRating = useMemo(
     () => entries?.result?.reduce((p, c) => p + c.likes.summ, 0),
@@ -47,21 +34,9 @@ function Scope() {
     [comments]
   );
 
-  const {
-    result: { subsite },
-  } = data || {
-    result: {
-      subsite: {
-        name:
-          comments?.result?.at(0)?.author?.name ||
-          entries?.result?.at(0)?.author?.name,
-      } as any,
-    },
-  };
-
   return (
     <VStack>
-      {error && (
+      {subsiteError && (
         <VStack align="start">
           <Heading>
             Вероятно профиль закрыт{" "}
@@ -78,6 +53,7 @@ function Scope() {
       <Header
         subsite={subsite}
         avatar_url={
+          subsite?.avatar?.data?.url ||
           comments?.result?.at(0)?.author?.avatar_url ||
           entries?.result?.at(0)?.author?.avatar_url
         }
