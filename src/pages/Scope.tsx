@@ -35,13 +35,13 @@ import { useApi, useApiLazy } from "hooks/useFetch";
 import { useState } from "react";
 import { useEffect } from "react";
 import { PropsWithChildren, useMemo } from "react";
-import { Bar, Line, Radar } from "react-chartjs-2";
 import { useSearchParams } from "react-router-dom";
 import { Osnova } from "types/osnova";
 import { getTargetId } from "utils/common";
 
-import { ActivityChartData, getStats } from "utils/charts";
+import { getStats } from "utils/charts";
 import { getRating } from "utils/rating";
+import ActivityCharts from "components/chart/Activity";
 
 function Overview({
   subsite,
@@ -292,45 +292,6 @@ function Comments({
     </Tabs>
   );
 }
-
-//#region Activity
-
-interface ActivityChartsProps {
-  data: ActivityChartData;
-  options?: Object;
-}
-
-function ActivityCharts({
-  data: { years, months, days, hours, ratingByEntity },
-  options,
-}: ActivityChartsProps) {
-  return (
-    <>
-      <VStack w="100%">
-        <Heading size="md">По годам</Heading>
-        <Bar data={years} options={options} />
-      </VStack>
-      <VStack w="100%">
-        <Heading size="md">По месяцам</Heading>
-        <Bar data={months} options={options} />
-      </VStack>
-      <VStack w="100%">
-        <Heading size="md">По дням</Heading>
-        <Bar data={days} options={options} />
-      </VStack>
-      <VStack w="100%">
-        <Heading size="md">По часам</Heading>
-        <Radar data={hours} options={options} />
-      </VStack>
-      <VStack w="100%">
-        <Heading size="md">Оценки</Heading>
-        <Line data={ratingByEntity} />
-      </VStack>
-    </>
-  );
-}
-
-//#endregion
 
 //#region Total
 
