@@ -62,7 +62,7 @@ function Total({ comments }: TotalProps) {
       }
       return result;
     });
-    let timeout = setTimeout(() => setCommentIndex((prev) => prev + 1), 2000);
+    let timeout = setTimeout(() => setCommentIndex((prev) => prev + 1), 800);
     return () => clearTimeout(timeout);
   }, [data]);
 
