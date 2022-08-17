@@ -14,7 +14,7 @@ import type { Osnova } from "types/osnova";
 function TotalTable({ likers }: { likers: Osnova.Likers.Likers }) {
   return (
     <TableContainer>
-      <Table variant="simple" size={{ base: "sm", md: "md" }}>
+      <Table variant="simple" size={{ base: "sm" }}>
         <TableCaption>Статистика оценок по пользователям</TableCaption>
         <Thead>
           <Tr>
