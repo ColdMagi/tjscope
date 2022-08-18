@@ -1,6 +1,16 @@
-import { VStack, Progress, SimpleGrid } from "@chakra-ui/react";
+import {
+  VStack,
+  Progress,
+  SimpleGrid,
+  Text,
+  Stat,
+  StatLabel,
+  StatNumber,
+  HStack,
+} from "@chakra-ui/react";
 import RatingByUser from "components/scope/Stat/RatingByUser";
 import TotalTable from "components/scope/TotalTable";
+import { addMilliseconds, formatDistance } from "date-fns";
 import { useApi } from "hooks/useFetch";
 import { useState, useMemo, useEffect } from "react";
 import type { Osnova } from "types/osnova";
@@ -9,6 +19,8 @@ import { calcLikers } from "utils/rating";
 interface TotalProps {
   comments: Osnova.Comment.CommentsResponse;
 }
+
+const timeoutTime = 400;
 
 function Total({ comments }: TotalProps) {
   const commentsLikersWorker = useMemo(
@@ -19,7 +31,6 @@ function Total({ comments }: TotalProps) {
       ),
     []
   );
-
   const [rawCommentsLikers, setRawCommentsLikers] = useState<
     Osnova.Comment.LikersResponse[]
   >([]);
@@ -27,6 +38,7 @@ function Total({ comments }: TotalProps) {
     {}
   );
   const [commentIndex, setCommentIndex] = useState(0);
+
   const { data } = useApi<Osnova.Comment.LikersResponse>(
     `/comment/likers/${(comments?.result || [])[commentIndex]?.id}`,
     undefined,
@@ -57,7 +69,10 @@ function Total({ comments }: TotalProps) {
   useEffect(() => {
     if (!data) return;
     setRawCommentsLikers((prev) => [...prev, data]);
-    let timeout = setTimeout(() => setCommentIndex((prev) => prev + 1), 400);
+    let timeout = setTimeout(
+      () => setCommentIndex((prev) => prev + 1),
+      timeoutTime
+    );
     return () => clearTimeout(timeout);
   }, [data]);
 
@@ -76,9 +91,29 @@ function Total({ comments }: TotalProps) {
   }, [rawCommentsLikers, commentIndex, comments, commentsLikersWorker]);
 
   return (
-    <VStack position="relative">
+    <VStack position="relative" w="100%">
       {comments?.result?.length > commentIndex && (
-        <Progress size="xs" isIndeterminate w="100%" />
+        <VStack w="100%" align="flex-end">
+          <Progress
+            size="lg"
+            value={(commentIndex / comments?.result?.length || 1) * 100}
+            w="100%"
+            rounded="md"
+          />
+          <HStack spacing={2}>
+            <Text>Осталось:</Text>
+            <Text>
+              {formatDistance(
+                new Date(),
+                addMilliseconds(
+                  new Date(),
+                  timeoutTime * (comments?.result?.length - commentIndex)
+                ),
+                { includeSeconds: true }
+              )}
+            </Text>
+          </HStack>
+        </VStack>
       )}
 
       <SimpleGrid
