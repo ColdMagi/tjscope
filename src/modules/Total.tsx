@@ -122,7 +122,7 @@ function Total({ comments }: TotalProps) {
         justifyContent="space-between"
         minW="100%"
       >
-        {[...Object.entries(commentsLikers)].length && (
+        {!![...Object.entries(commentsLikers)].length && (
           <Stat>
             <StatLabel>Уникальных пользователей</StatLabel>
             <StatNumber>

@@ -23,12 +23,15 @@ const calcLikers = (source: Osnova.Comment.LikersResponse[]) => {
         result[id] = {
           minus: 0,
           plus: 0,
+          total: 0,
           avatar_url: "",
           name: "",
+          id,
         };
       }
       result[id].minus += Number(val.sign < 0);
       result[id].plus += Number(val.sign > 0);
+      result[id].total++;
 
       result[id].avatar_url = val.avatar_url;
       result[id].name = val.name;

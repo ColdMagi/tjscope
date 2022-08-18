@@ -780,8 +780,10 @@ namespace Osnova {
     export type Liker = {
       minus: number;
       plus: number;
+      total: number;
       name: string;
       avatar_url: string;
+      id: number | string;
     };
     export type Likers = Record<string, Liker>;
   }
