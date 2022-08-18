@@ -122,6 +122,14 @@ function Total({ comments }: TotalProps) {
         justifyContent="space-between"
         minW="100%"
       >
+        {[...Object.entries(commentsLikers)].length && (
+          <Stat>
+            <StatLabel>Уникальных пользователей</StatLabel>
+            <StatNumber>
+              {[...Object.entries(commentsLikers)].length}
+            </StatNumber>
+          </Stat>
+        )}
         {!!+commentStats.plus.id && (
           <RatingByUser {...commentStats.plus} label="Больше всего плюсов" />
         )}
