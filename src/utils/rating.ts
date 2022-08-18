@@ -1,4 +1,4 @@
-import { Osnova } from "types/osnova";
+import type { Osnova } from "types/osnova";
 
 const getRating = <T extends Pick<Osnova.Entry.Likes, "count" | "summ">>({
   count,
@@ -15,4 +15,26 @@ const getRating = <T extends Pick<Osnova.Entry.Likes, "count" | "summ">>({
   return { minus, plus };
 };
 
-export { getRating };
+const calcLikers = (source: Osnova.Comment.LikersResponse[]) => {
+  const result: Osnova.Likers.Likers = {};
+  for (const data of source) {
+    for (const [id, val] of Object.entries(data.result)) {
+      if (!Reflect.has(result, id)) {
+        result[id] = {
+          minus: 0,
+          plus: 0,
+          avatar_url: "",
+          name: "",
+        };
+      }
+      result[id].minus += Number(val.sign < 0);
+      result[id].plus += Number(val.sign > 0);
+
+      result[id].avatar_url = val.avatar_url;
+      result[id].name = val.name;
+    }
+  }
+  return result;
+};
+
+export { getRating, calcLikers };

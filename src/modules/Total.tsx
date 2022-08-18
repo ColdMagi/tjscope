@@ -4,12 +4,25 @@ import TotalTable from "components/scope/TotalTable";
 import { useApi } from "hooks/useFetch";
 import { useState, useMemo, useEffect } from "react";
 import type { Osnova } from "types/osnova";
+import { calcLikers } from "utils/rating";
 
 interface TotalProps {
   comments: Osnova.Comment.CommentsResponse;
 }
 
 function Total({ comments }: TotalProps) {
+  const commentsLikersWorker = useMemo(
+    () =>
+      Worker &&
+      new Worker(
+        new URL("./workers/commentsLikers.worker.js", import.meta.url)
+      ),
+    []
+  );
+
+  const [rawCommentsLikers, setRawCommentsLikers] = useState<
+    Osnova.Comment.LikersResponse[]
+  >([]);
   const [commentsLikers, setCommentsLikers] = useState<Osnova.Likers.Likers>(
     {}
   );
@@ -43,28 +56,24 @@ function Total({ comments }: TotalProps) {
 
   useEffect(() => {
     if (!data) return;
-    setCommentsLikers((prev) => {
-      const result = { ...prev };
-      for (const [id, val] of Object.entries(data.result)) {
-        if (!Reflect.has(result, id)) {
-          result[id] = {
-            minus: 0,
-            plus: 0,
-            avatar_url: "",
-            name: "",
-          };
-        }
-        result[id].minus += Number(val.sign < 0);
-        result[id].plus += Number(val.sign > 0);
-
-        result[id].avatar_url = val.avatar_url;
-        result[id].name = val.name;
-      }
-      return result;
-    });
-    let timeout = setTimeout(() => setCommentIndex((prev) => prev + 1), 800);
+    setRawCommentsLikers((prev) => [...prev, data]);
+    let timeout = setTimeout(() => setCommentIndex((prev) => prev + 1), 400);
     return () => clearTimeout(timeout);
   }, [data]);
+
+  useEffect(() => {
+    if (!commentsLikersWorker) return;
+    commentsLikersWorker.onmessage = (ev) => setCommentsLikers(ev.data);
+  }, [commentsLikersWorker]);
+
+  useEffect(() => {
+    if ((comments?.result || [])[commentIndex]) return;
+    if (commentsLikersWorker) {
+      commentsLikersWorker.postMessage(rawCommentsLikers);
+    } else {
+      setCommentsLikers(calcLikers(rawCommentsLikers));
+    }
+  }, [rawCommentsLikers, commentIndex, comments, commentsLikersWorker]);
 
   return (
     <VStack position="relative">
