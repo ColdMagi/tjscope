@@ -6,24 +6,38 @@ interface UserProps {
   name: string;
   avatar_url: string;
   id: number | string;
+  size?: "sm" | "md";
 }
+
+const sizes = {
+  md: {
+    fontSize: "18px",
+    maxW: "180px",
+  },
+  sm: {
+    fontSize: "13px",
+    maxW: "140px",
+  },
+};
 
 function User({
   name,
   avatar_url,
   id,
   children,
+  size = "md",
 }: PropsWithChildren<UserProps>) {
   const { host } = useApiContext();
   return (
     <HStack as="a" href={`https://${host}/u/${id}`} target="_blank">
-      <Avatar size={{ base: "sm", md: "md" }} name={name} src={avatar_url} />
+      <Avatar size={{ base: "sm", md: size }} name={name} src={avatar_url} />
       <Text
-        fontSize={{ base: "14px", md: "18px" }}
+        fontSize={{ base: "14px", md: sizes[size].fontSize }}
         as="b"
-        maxW={{ base: "100px", md: "180px", lg: "200px" }}
+        maxW={{ base: "100px", md: sizes[size].maxW }}
         textOverflow={"ellipsis"}
         overflow="hidden"
+        align="initial"
       >
         {name}
       </Text>
