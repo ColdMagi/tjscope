@@ -11,6 +11,10 @@
 
 - Remove margin by x axis in table pagination to more space for controls
 
+### Fixed
+
+- Table overflow for mobile devices (<435px). Only table will be overflowed and scrollable by x
+
 ## [0.4.5-rc2]
 
 ### Removed
