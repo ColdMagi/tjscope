@@ -124,7 +124,7 @@ function TotalTable({ likers }: { likers: Osnova.Likers.Likers }) {
         </Tbody>
       </Table>
 
-      <Flex justifyContent="space-between" m={4} alignItems="center" w="100%">
+      <Flex justifyContent="space-between" mt={4} alignItems="center" w="100%">
         <Flex>
           <Tooltip label="First Page">
             <IconButton
