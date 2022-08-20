@@ -26,9 +26,7 @@ function Rating({ comments }: RatingProps) {
   const commentsLikersWorker = useMemo(
     () =>
       Worker &&
-      new Worker(
-        new URL("./workers/commentsLikers.worker.js", import.meta.url)
-      ),
+      new Worker(new URL("./workers/likers.worker.js", import.meta.url)),
     []
   );
   const [rawCommentsLikers, setRawCommentsLikers] = useState<
