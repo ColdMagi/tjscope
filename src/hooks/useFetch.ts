@@ -99,10 +99,18 @@ function useFetch<T = unknown>(url?: string, options?: RequestInit): State<T> {
 function useApi<T = unknown>(
   url?: string,
   options?: RequestInit,
-  apiV = "2.31"
+  apiV = ""
 ): State<T> {
-  const api = useApiContext();
-  return useFetch<T>(url ? `${api.replace("2.31", apiV)}${url}` : url, options);
+  const { host, version } = useApiContext();
+  return useFetch<T>(
+    url
+      ? `${`https://api.${host}/v${version}`.replace(
+          `${version}`,
+          apiV || version
+        )}${url}`
+      : url,
+    options
+  );
 }
 
 function useApiLazy<T extends { result: Array<unknown> }>(

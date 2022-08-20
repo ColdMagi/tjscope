@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { createContext, PropsWithChildren } from "react";
 
-const api = "https://api.tjournal.ru/v2.31";
+const api = { host: "tjournal.ru", version: "2.31" };
 const ApiContext = createContext(api);
 const useApiContext = () => useContext(ApiContext);
 
