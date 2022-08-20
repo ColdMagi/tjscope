@@ -1,4 +1,4 @@
-import { Box, HStack, SimpleGrid, Text, VStack } from "@chakra-ui/react";
+import { chakra, HStack, Text } from "@chakra-ui/react";
 import { useMemo, useRef } from "react";
 import type { Osnova } from "types/osnova";
 
@@ -17,61 +17,73 @@ interface ListProps extends TotalGridProps {
 function List({ likers, target, color }: ListProps) {
   const ref = useRef<HTMLDivElement>(null);
 
-  const arrLikers = useMemo(() => [...Object.values(likers)], [likers]);
+  const arrLikers = useMemo(
+    () =>
+      [...Object.values(likers)].sort(
+        (a, b) => (b[target] as number) - (a[target] as number)
+      ),
+    [likers, target]
+  );
 
   const rowVirtualizer = useVirtualizer({
     count: arrLikers.length,
     getScrollElement: () => ref.current,
     getItemKey: (i) => arrLikers[i].id,
-    estimateSize: () => 35,
+    estimateSize: () => 50,
+    overscan: 20,
   });
 
   return (
-    <Box
+    <chakra.div
       shadow="md"
-      rounded="sm"
-      p="2"
+      rounded="md"
       borderWidth="1px"
       borderColor="gray.300"
       ref={ref}
       overflow="auto"
-      maxH="80vh"
+      h="80vh"
+      w="100%"
+      p="2"
     >
-      <VStack
+      <chakra.div
         w="100%"
         position="relative"
         height={`${rowVirtualizer.getTotalSize()}px`}
       >
-        {rowVirtualizer.getVirtualItems().map((item) => (
-          <HStack
-            key={item.key}
-            justifyContent={"space-between"}
-            position="absolute"
-            top="0"
-            left="0"
-            w="100%"
-            height={`${item.size}px`}
-            transform={`translateY(${item.start})px`}
+        {rowVirtualizer.getVirtualItems().map((virtualRow) => (
+          <div
+            key={virtualRow.index}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: `${virtualRow.size}px`,
+              transform: `translateY(${virtualRow.start}px)`,
+            }}
           >
-            <User
-              avatar_url={arrLikers[item.index].avatar_url}
-              id={arrLikers[item.index].id}
-              name={arrLikers[item.index].name}
-            />
-            <Text color={color}>{arrLikers[item.index][target]}</Text>
-          </HStack>
+            <HStack justifyContent="space-between">
+              <User
+                avatar_url={arrLikers[virtualRow.index].avatar_url}
+                id={arrLikers[virtualRow.index].id}
+                name={arrLikers[virtualRow.index].name}
+                size="sm"
+              />
+              <Text color={color}>{arrLikers[virtualRow.index][target]}</Text>
+            </HStack>
+          </div>
         ))}
-      </VStack>
-    </Box>
+      </chakra.div>
+    </chakra.div>
   );
 }
 
 function TotalGrid({ likers }: TotalGridProps) {
   return (
-    <SimpleGrid columns={2}>
+    <HStack spacing={2}>
       <List likers={likers} target="plus" color="green.300" />
       <List likers={likers} target="minus" color="red.300" />
-    </SimpleGrid>
+    </HStack>
   );
 }
 
