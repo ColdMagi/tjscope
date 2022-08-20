@@ -11,90 +11,25 @@ import {
 import RatingByUser from "components/scope/Stat/RatingByUser";
 import Likers from "components/scope/likers/Likers";
 import { addMilliseconds, formatDistance } from "date-fns";
-import { useApi } from "hooks/useFetch";
-import { useState, useMemo, useEffect } from "react";
-import type { Osnova } from "types/osnova";
-import { calcLikers } from "utils/rating";
+import useLikers, { UseLikersIdSource } from "hooks/useLikers";
 
 interface RatingProps {
-  comments: Osnova.Comment.CommentsResponse;
+  source: UseLikersIdSource;
 }
 
-const timeoutTime = 400;
-
-function Rating({ comments }: RatingProps) {
-  const commentsLikersWorker = useMemo(
-    () =>
-      Worker &&
-      new Worker(new URL("./workers/likers.worker.js", import.meta.url)),
-    []
+function Rating({ source }: RatingProps) {
+  const { loading, loaded, size, data, stats, timeoutTime } = useLikers(
+    source,
+    "comment"
   );
-  const [rawCommentsLikers, setRawCommentsLikers] = useState<
-    Osnova.Comment.LikersResponse[]
-  >([]);
-  const [commentsLikers, setCommentsLikers] = useState<Osnova.Likers.Likers>(
-    {}
-  );
-  const [commentIndex, setCommentIndex] = useState(0);
-
-  const { data } = useApi<Osnova.Comment.LikersResponse>(
-    `/comment/likers/${(comments?.result || [])[commentIndex]?.id}`,
-    undefined,
-    "1.9"
-  );
-
-  const commentStats = useMemo(() => {
-    const result = {
-      plus: { ...(commentsLikers[0] || { plus: 0 }), id: "0" },
-      minus: { ...(commentsLikers[0] || { minus: 0 }), id: "0" },
-      total: { ...(commentsLikers[0] || { plus: 0, minus: 0 }), id: "0" },
-    };
-
-    for (const [id, cmt] of Object.entries(commentsLikers)) {
-      if (cmt.minus > result.minus.minus) {
-        result.minus = { ...cmt, id };
-      }
-      if (cmt.plus > result.plus.plus) {
-        result.plus = { ...cmt, id };
-      }
-      if (cmt.plus + cmt.minus > result.total.plus + result.total.minus) {
-        result.total = { ...cmt, id };
-      }
-    }
-    return result;
-  }, [commentsLikers]);
-
-  useEffect(() => {
-    if (!data) return;
-    setRawCommentsLikers((prev) => [...prev, data]);
-    let timeout = setTimeout(
-      () => setCommentIndex((prev) => prev + 1),
-      timeoutTime
-    );
-    return () => clearTimeout(timeout);
-  }, [data]);
-
-  useEffect(() => {
-    if (!commentsLikersWorker) return;
-    commentsLikersWorker.onmessage = (ev) => setCommentsLikers(ev.data);
-  }, [commentsLikersWorker]);
-
-  useEffect(() => {
-    if ((comments?.result || [])[commentIndex]) return;
-    if (commentsLikersWorker) {
-      commentsLikersWorker.postMessage(rawCommentsLikers);
-    } else {
-      setCommentsLikers(calcLikers(rawCommentsLikers));
-    }
-  }, [rawCommentsLikers, commentIndex, comments, commentsLikersWorker]);
 
   return (
     <VStack position="relative" w="100%">
-      {comments?.result?.length > commentIndex && (
+      {loading && (
         <VStack w="100%" align="flex-end">
           <Progress
             size="lg"
-            value={(commentIndex / comments?.result?.length || 1) * 100}
+            value={(loaded / size || 1) * 100}
             w="100%"
             rounded="md"
           />
@@ -103,10 +38,7 @@ function Rating({ comments }: RatingProps) {
             <Text>
               {formatDistance(
                 new Date(),
-                addMilliseconds(
-                  new Date(),
-                  timeoutTime * (comments?.result?.length - commentIndex)
-                ),
+                addMilliseconds(new Date(), timeoutTime * (size - loaded)),
                 { includeSeconds: true }
               )}
             </Text>
@@ -114,33 +46,32 @@ function Rating({ comments }: RatingProps) {
         </VStack>
       )}
 
-      <SimpleGrid
-        columns={{ md: 2, base: 1 }}
-        spacing={5}
-        justifyContent="space-between"
-        minW="100%"
-      >
-        {!![...Object.entries(commentsLikers)].length && (
-          <Stat>
-            <StatLabel>Уникальных пользователей</StatLabel>
-            <StatNumber>
-              {[...Object.entries(commentsLikers)].length}
-            </StatNumber>
-          </Stat>
-        )}
-        {!!+commentStats.plus.id && (
-          <RatingByUser {...commentStats.plus} label="Больше всего плюсов" />
-        )}
-        {!!+commentStats.minus.id && (
-          <RatingByUser {...commentStats.minus} label="Больше всего минусов" />
-        )}
-        {!!+commentStats.total.id && (
-          <RatingByUser {...commentStats.total} label="Больше всего оценок" />
-        )}
-      </SimpleGrid>
-
-      {comments?.result?.length <= commentIndex && (
-        <Likers likers={commentsLikers} />
+      {!loading && (
+        <>
+          <SimpleGrid
+            columns={{ md: 2, base: 1 }}
+            spacing={5}
+            justifyContent="space-between"
+            minW="100%"
+          >
+            {!![...Object.entries(data)].length && (
+              <Stat>
+                <StatLabel>Уникальных пользователей</StatLabel>
+                <StatNumber>{[...Object.entries(data)].length}</StatNumber>
+              </Stat>
+            )}
+            {!!+stats.plus.id && (
+              <RatingByUser {...stats.plus} label="Больше всего плюсов" />
+            )}
+            {!!+stats.minus.id && (
+              <RatingByUser {...stats.minus} label="Больше всего минусов" />
+            )}
+            {!!+stats.total.id && (
+              <RatingByUser {...stats.total} label="Больше всего оценок" />
+            )}
+          </SimpleGrid>
+          <Likers likers={data} />
+        </>
       )}
     </VStack>
   );

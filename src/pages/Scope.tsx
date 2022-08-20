@@ -96,7 +96,7 @@ function Scope() {
             <Comments data={comments} />
           </TabPanel>
           <TabPanel>
-            <Rating comments={comments} />
+            <Rating source={comments} />
           </TabPanel>
         </TabPanels>
       </Tabs>
