@@ -76,7 +76,7 @@ function useLikers(idSource: UseLikersIdSource, target: string) {
     loading: (idSource?.result?.length || 0) > index,
     timeoutTime,
     loaded: index,
-    data: data || {},
+    data: likers || {},
   };
 }
 
