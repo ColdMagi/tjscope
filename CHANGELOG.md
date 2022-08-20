@@ -15,17 +15,17 @@
 
 - Table overflow for mobile devices (<435px). Only table will be overflowed and scrollable by x
 
-## [0.4.5-rc2]
+## [0.4.5-rc2] - 2022-08-20
 
 ### Removed
 
 - Logos (`.png`) and links to them in `manifest.json`
 
-### Fixed
+### Fixed - 2022-08-20
 
 - 404 for github-pages (#6)
 
-## [0.4.5-rc1]
+## [0.4.5-rc1] - 2022-08-20
 
 ### Fixed
 
