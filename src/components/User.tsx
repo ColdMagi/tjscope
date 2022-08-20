@@ -1,4 +1,5 @@
 import { HStack, Avatar, Text } from "@chakra-ui/react";
+import { useApiContext } from "contexts/Api";
 import { PropsWithChildren } from "react";
 
 interface UserProps {
@@ -15,8 +16,9 @@ function User({
   children,
   size = "md",
 }: PropsWithChildren<UserProps>) {
+  const { host } = useApiContext();
   return (
-    <HStack as="a" href={`https://tjournal.ru/u/${id}`} target="_blank">
+    <HStack as="a" href={`https://${host}/u/${id}`} target="_blank">
       <Avatar size={size} name={name} src={avatar_url} />
       <Text
         fontSize={size === "md" ? "18px" : "14px"}
