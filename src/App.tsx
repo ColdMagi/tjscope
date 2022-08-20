@@ -17,7 +17,7 @@ function App() {
             TJScope
           </Heading>
           <chakra.span pl="2" color="gray.400">
-            v0.4.5-rc1
+            v0.4.5-rc2
           </chakra.span>
         </chakra.header>
 
