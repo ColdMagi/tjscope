@@ -33,6 +33,7 @@ function User({
       <Avatar size={{ base: "sm", md: size }} name={name} src={avatar_url} />
       <Text
         fontSize={{ base: "14px", md: sizes[size].fontSize }}
+        lineHeight={1.1}
         as="b"
         maxW={{ base: "100px", md: sizes[size].maxW }}
         textOverflow={"ellipsis"}
