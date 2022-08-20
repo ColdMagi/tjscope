@@ -15,12 +15,13 @@ import useLikers, { UseLikersIdSource } from "hooks/useLikers";
 
 interface RatingProps {
   source: UseLikersIdSource;
+  target: string;
 }
 
-function Rating({ source }: RatingProps) {
+function Rating({ source, target }: RatingProps) {
   const { loading, loaded, size, data, stats, timeoutTime } = useLikers(
     source,
-    "comment"
+    target
   );
 
   return (
