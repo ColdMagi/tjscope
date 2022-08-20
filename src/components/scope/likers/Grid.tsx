@@ -19,9 +19,9 @@ function List({ likers, target, color }: ListProps) {
 
   const arrLikers = useMemo(
     () =>
-      [...Object.values(likers)].sort(
-        (a, b) => (b[target] as number) - (a[target] as number)
-      ),
+      [...Object.values(likers)]
+        .filter((l) => l[target])
+        .sort((a, b) => (b[target] as number) - (a[target] as number)),
     [likers, target]
   );
 
