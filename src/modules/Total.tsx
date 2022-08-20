@@ -9,7 +9,7 @@ import {
   HStack,
 } from "@chakra-ui/react";
 import RatingByUser from "components/scope/Stat/RatingByUser";
-import TotalTable from "components/scope/total/TotalTable";
+import TotalFilter from "components/scope/total/TotalFilter";
 import { addMilliseconds, formatDistance } from "date-fns";
 import { useApi } from "hooks/useFetch";
 import { useState, useMemo, useEffect } from "react";
@@ -142,7 +142,7 @@ function Total({ comments }: TotalProps) {
       </SimpleGrid>
 
       {comments?.result?.length <= commentIndex && (
-        <TotalTable likers={commentsLikers} />
+        <TotalFilter likers={commentsLikers} />
       )}
     </VStack>
   );
