@@ -13,7 +13,7 @@ import { useSearchParams } from "react-router-dom";
 import { getTargetId } from "utils/common";
 import Entries from "modules/Entries";
 import Comments from "modules/Comments";
-import Total from "modules/Total";
+import Rating from "modules/Rating";
 import Overview from "modules/Overview";
 import Header from "components/scope/parts/Header";
 import useScope from "hooks/useScope";
@@ -79,7 +79,7 @@ function Scope() {
           <Tab>Обзор</Tab>
           <Tab>Посты</Tab>
           <Tab>Комментарии</Tab>
-          <Tab>Итог</Tab>
+          <Tab>Оценки</Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
@@ -96,7 +96,7 @@ function Scope() {
             <Comments data={comments} />
           </TabPanel>
           <TabPanel>
-            <Total comments={comments} />
+            <Rating comments={comments} />
           </TabPanel>
         </TabPanels>
       </Tabs>

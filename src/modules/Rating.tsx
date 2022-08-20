@@ -16,13 +16,13 @@ import { useState, useMemo, useEffect } from "react";
 import type { Osnova } from "types/osnova";
 import { calcLikers } from "utils/rating";
 
-interface TotalProps {
+interface RatingProps {
   comments: Osnova.Comment.CommentsResponse;
 }
 
 const timeoutTime = 400;
 
-function Total({ comments }: TotalProps) {
+function Rating({ comments }: RatingProps) {
   const commentsLikersWorker = useMemo(
     () =>
       Worker &&
@@ -148,4 +148,4 @@ function Total({ comments }: TotalProps) {
   );
 }
 
-export default Total;
+export default Rating;
