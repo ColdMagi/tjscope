@@ -1,6 +1,17 @@
 # Change log
 
-## [v0.4.5-rc2]
+## [0.4.5] - 2022-08-20
+
+### Added
+
+- Layout switch for total likers
+- Grid (two-list) layout for display likers (first is likers, second is dislikers)
+
+### Changed
+
+- Remove margin by x axis in table pagination to more space for controls
+
+## [0.4.5-rc2]
 
 ### Removed
 
