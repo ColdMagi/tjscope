@@ -1,6 +1,6 @@
 # Change log
 
-## [Unreleased]
+## [0.4.5-rc1]
 
 ### Fixed
 
