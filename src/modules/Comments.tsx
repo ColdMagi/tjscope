@@ -15,7 +15,7 @@ import StatCat from "components/scope/StatCat";
 import { useApi } from "hooks/useFetch";
 import useLikers, { UseLikersData } from "hooks/useLikers";
 import { useMemo, useState } from "react";
-import { Osnova } from "types/osnova";
+import type { Osnova } from "types/osnova";
 import { getStats } from "utils/charts";
 import { getRating } from "utils/rating";
 import Rating from "./Rating";
@@ -70,8 +70,24 @@ function Comments({
   const charts = getStats(data || {}, commentDatasetOptions);
 
   return (
-    <Tabs variant={"enclosed"} isFitted w="100%">
-      <TabList>
+    <Tabs
+      variant={"soft-rounded"}
+      size={{ base: "sm", md: "md" }}
+      maxW="100%"
+      w="100%"
+      colorScheme="teal"
+    >
+      <TabList
+        minW="0"
+        maxW="100%"
+        overflowX="auto"
+        sx={{
+          scrollbarWidth: "none",
+          "::-webkit-scrollbar": { display: "none" },
+          WebkitOverflowScrolling: "touch",
+        }}
+        px="1"
+      >
         <Tab>Статистика</Tab>
         <Tab>Активность</Tab>
         <Tab>Оценки</Tab>

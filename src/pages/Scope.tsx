@@ -63,6 +63,7 @@ function Scope() {
         size={{ base: "sm", md: "md" }}
         maxW="100%"
         w="100%"
+        colorScheme="cyan"
       >
         <TabList
           minW="0"
@@ -90,7 +91,7 @@ function Scope() {
           <TabPanel>
             <Entries data={entries} />
           </TabPanel>
-          <TabPanel>
+          <TabPanel px={0}>
             <Comments data={comments} />
           </TabPanel>
         </TabPanels>
