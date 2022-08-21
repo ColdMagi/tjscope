@@ -143,5 +143,13 @@ function useApiLazy<T extends { result: Array<unknown> }>(
   return result;
 }
 
-export { useApi, useApiLazy };
+function useApiProxy<T = unknown>(
+  url?: string,
+  options?: RequestInit
+): State<T> {
+  const { proxy } = useApiContext();
+  return useFetch<T>(`${proxy}${url}`, options);
+}
+
+export { useApi, useApiLazy, useApiProxy };
 export default useFetch;

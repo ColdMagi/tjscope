@@ -5,7 +5,7 @@ const api = {
   host: "tjournal.ru",
   version: "2.31",
   proxy:
-    "https://guileless-malasada-7737f0.netlify.app/.netlify/functions/server/",
+    "https://guileless-malasada-7737f0.netlify.app/.netlify/functions/server",
 };
 const ApiContext = createContext(api);
 const useApiContext = () => useContext(ApiContext);
