@@ -88,7 +88,7 @@ function Scope() {
               comments={comments?.result?.length}
             />
           </TabPanel>
-          <TabPanel>
+          <TabPanel px={0}>
             <Entries data={entries} />
           </TabPanel>
           <TabPanel px={0}>
