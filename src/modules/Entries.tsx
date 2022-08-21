@@ -15,9 +15,10 @@ import ActivityCharts from "components/chart/Activity";
 import EntryCard from "components/scope/EntryCard";
 import RatingView from "components/scope/RatingView";
 import StatCat from "components/scope/StatCat";
+import { useApiProxy } from "hooks/useFetch";
 import useLikers, { UseLikersData } from "hooks/useLikers";
-import { useMemo, useState } from "react";
-import { Osnova } from "types/osnova";
+import { useEffect, useMemo, useState } from "react";
+import type { Osnova } from "types/osnova";
 import { getStats } from "utils/charts";
 import { getRating } from "utils/rating";
 import Rating from "./Rating";
@@ -27,7 +28,25 @@ function useEntriesLikers(source: Osnova.Entry.EntriesResponse | undefined) {
     undefined
   );
   const [cLikers, setCLikers] = useState<UseLikersData>(undefined);
+  const { data } = useApiProxy<Osnova.Entry.LikersResponse>(
+    `/entry/likers?id=${currentId}`
+  );
   const likers = useLikers(source, cLikers, setCurrentId);
+
+  useEffect(() => {
+    if (!data) return;
+    const result: UseLikersData = { result: {} };
+    for (const [id, val] of Object.entries(data.data.likers)) {
+      const v = val as Osnova.Entry.Liker;
+      result.result[id] = {
+        avatar_url: v.avatar_url,
+        name: v.user_name,
+        sign: v.sign,
+      };
+    }
+    console.log(result, data);
+    setCLikers(result);
+  }, [data]);
 
   return likers;
 }
