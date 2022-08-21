@@ -1,12 +1,12 @@
 # Change log
 
-## [Unreleased]
+## [0.4.7](https://github.com/ColdMagi/tjscope/pull/9) - 2022-08-21
 
 ### Added
 
 - scrollable tabs in _comments_ module
 - scrollable tabs in _posts_ module
-- post likers rating tab (by user) like in _comments_ module
+- post likers rating tab (by user) like in _comments_ module ([#1](https://github.com/ColdMagi/tjscope/issues/1))
 
 ### Changed
 
