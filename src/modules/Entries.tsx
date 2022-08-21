@@ -44,7 +44,6 @@ function useEntriesLikers(source: Osnova.Entry.EntriesResponse | undefined) {
         sign: v.sign,
       };
     }
-    console.log(result, data);
     setCLikers(result);
   }, [data]);
 
