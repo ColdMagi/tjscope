@@ -15,10 +15,41 @@ import ActivityCharts from "components/chart/Activity";
 import EntryCard from "components/scope/EntryCard";
 import RatingView from "components/scope/RatingView";
 import StatCat from "components/scope/StatCat";
-import { useMemo } from "react";
-import { Osnova } from "types/osnova";
+import { useApiProxy } from "hooks/useFetch";
+import useLikers, { UseLikersData } from "hooks/useLikers";
+import { useEffect, useMemo, useState } from "react";
+import type { Osnova } from "types/osnova";
 import { getStats } from "utils/charts";
 import { getRating } from "utils/rating";
+import Rating from "./Rating";
+
+function useEntriesLikers(source: Osnova.Entry.EntriesResponse | undefined) {
+  const [currentId, setCurrentId] = useState<string | number | undefined>(
+    undefined
+  );
+  const [cLikers, setCLikers] = useState<UseLikersData>(undefined);
+  const { data } = useApiProxy<Osnova.Entry.LikersResponse>(
+    `/entry/likers?id=${currentId}`
+  );
+  const likers = useLikers(source, cLikers, setCurrentId);
+
+  useEffect(() => {
+    if (!data) return;
+    const result: UseLikersData = { result: {} };
+    for (const [id, val] of Object.entries(data.data.likers)) {
+      const v = val as Osnova.Entry.Liker;
+      result.result[id] = {
+        avatar_url: v.avatar_url,
+        name: v.user_name,
+        sign: v.sign,
+      };
+    }
+    console.log(result, data);
+    setCLikers(result);
+  }, [data]);
+
+  return likers;
+}
 
 function Entries({ data }: { data: Osnova.Entry.EntriesResponse | undefined }) {
   const stats = useMemo(() => {
@@ -56,6 +87,8 @@ function Entries({ data }: { data: Osnova.Entry.EntriesResponse | undefined }) {
     return result;
   }, [data]);
 
+  const likers = useEntriesLikers(data);
+
   const options = useConst({ plugins: { legend: { display: false } } });
   const entryDatasetOptions = useConst({
     borderColor: "rgb(237,137,54)",
@@ -66,10 +99,27 @@ function Entries({ data }: { data: Osnova.Entry.EntriesResponse | undefined }) {
   const charts = getStats(data || {}, entryDatasetOptions);
 
   return (
-    <Tabs variant={"enclosed"} isFitted w="100%">
-      <TabList w="100%">
+    <Tabs
+      variant={"soft-rounded"}
+      size={{ base: "sm", md: "md" }}
+      maxW="100%"
+      w="100%"
+      colorScheme="orange"
+    >
+      <TabList
+        minW="0"
+        maxW="100%"
+        overflowX="auto"
+        sx={{
+          scrollbarWidth: "none",
+          "::-webkit-scrollbar": { display: "none" },
+          WebkitOverflowScrolling: "touch",
+        }}
+        px="1"
+      >
         <Tab>Статистика</Tab>
         <Tab>Активность</Tab>
+        <Tab>Оценки</Tab>
       </TabList>
       <TabPanels w="100%">
         <TabPanel>
@@ -117,6 +167,9 @@ function Entries({ data }: { data: Osnova.Entry.EntriesResponse | undefined }) {
         </TabPanel>
         <TabPanel>
           <ActivityCharts data={charts} options={options} />
+        </TabPanel>
+        <TabPanel>
+          <Rating {...likers} />
         </TabPanel>
       </TabPanels>
     </Tabs>

@@ -13,7 +13,6 @@ import { useSearchParams } from "react-router-dom";
 import { getTargetId } from "utils/common";
 import Entries from "modules/Entries";
 import Comments from "modules/Comments";
-import Total from "modules/Total";
 import Overview from "modules/Overview";
 import Header from "components/scope/parts/Header";
 import useScope from "hooks/useScope";
@@ -64,6 +63,7 @@ function Scope() {
         size={{ base: "sm", md: "md" }}
         maxW="100%"
         w="100%"
+        colorScheme="cyan"
       >
         <TabList
           minW="0"
@@ -79,7 +79,6 @@ function Scope() {
           <Tab>Обзор</Tab>
           <Tab>Посты</Tab>
           <Tab>Комментарии</Tab>
-          <Tab>Итог</Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
@@ -92,11 +91,8 @@ function Scope() {
           <TabPanel>
             <Entries data={entries} />
           </TabPanel>
-          <TabPanel>
+          <TabPanel px={0}>
             <Comments data={comments} />
-          </TabPanel>
-          <TabPanel>
-            <Total comments={comments} />
           </TabPanel>
         </TabPanels>
       </Tabs>

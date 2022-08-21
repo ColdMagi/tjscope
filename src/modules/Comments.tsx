@@ -12,10 +12,13 @@ import ActivityCharts from "components/chart/Activity";
 import CommentCard from "components/scope/CommentCard";
 import RatingView from "components/scope/RatingView";
 import StatCat from "components/scope/StatCat";
-import { useMemo } from "react";
-import { Osnova } from "types/osnova";
+import { useApi } from "hooks/useFetch";
+import useLikers, { UseLikersData } from "hooks/useLikers";
+import { useMemo, useState } from "react";
+import type { Osnova } from "types/osnova";
 import { getStats } from "utils/charts";
 import { getRating } from "utils/rating";
+import Rating from "./Rating";
 
 function Comments({
   data,
@@ -47,6 +50,16 @@ function Comments({
     return result;
   }, [data]);
 
+  const [currentId, setCurrentId] = useState<string | number | undefined>(
+    undefined
+  );
+  const { data: cLikers } = useApi<UseLikersData>(
+    `/comment/likers/${currentId}`,
+    undefined,
+    "1.9"
+  );
+  const likers = useLikers(data, cLikers, setCurrentId);
+
   const options = useConst({ plugins: { legend: { display: false } } });
   const commentDatasetOptions = useConst({
     borderColor: "rgb(49,130,206)",
@@ -57,10 +70,27 @@ function Comments({
   const charts = getStats(data || {}, commentDatasetOptions);
 
   return (
-    <Tabs variant={"enclosed"} isFitted w="100%">
-      <TabList>
+    <Tabs
+      variant={"soft-rounded"}
+      size={{ base: "sm", md: "md" }}
+      maxW="100%"
+      w="100%"
+      colorScheme="teal"
+    >
+      <TabList
+        minW="0"
+        maxW="100%"
+        overflowX="auto"
+        sx={{
+          scrollbarWidth: "none",
+          "::-webkit-scrollbar": { display: "none" },
+          WebkitOverflowScrolling: "touch",
+        }}
+        px="1"
+      >
         <Tab>Статистика</Tab>
         <Tab>Активность</Tab>
+        <Tab>Оценки</Tab>
       </TabList>
       <TabPanels>
         <TabPanel>
@@ -91,6 +121,9 @@ function Comments({
         </TabPanel>
         <TabPanel>
           <ActivityCharts data={charts} options={options} />
+        </TabPanel>
+        <TabPanel>
+          <Rating {...likers} />
         </TabPanel>
       </TabPanels>
     </Tabs>
