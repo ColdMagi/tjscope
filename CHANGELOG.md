@@ -1,5 +1,21 @@
 # Change log
 
+## [Unreleased]
+
+### Added
+
+- scrollable tabs in _comments_ module
+- scrollable tabs in _posts_ module
+- post likers rating tab (by user) like in _comments_ module
+
+### Changed
+
+- color scheme of tabs in _main_ to `cyan`
+- color scheme of tabs in _comments_ module to `teal`
+- color scheme of tabs in _entries_ module to `orange`
+- variant of tabs in _comments_ module from `enclosed` to `soft-rounded`
+- variant of tabs in _entries_ module from `enclosed` to `soft-rounded`
+
 ## [0.4.5] - 2022-08-20
 
 ### Added

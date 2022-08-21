@@ -16,7 +16,7 @@ import EntryCard from "components/scope/EntryCard";
 import RatingView from "components/scope/RatingView";
 import StatCat from "components/scope/StatCat";
 import useLikers, { UseLikersData } from "hooks/useLikers";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Osnova } from "types/osnova";
 import { getStats } from "utils/charts";
 import { getRating } from "utils/rating";
@@ -28,8 +28,6 @@ function useEntriesLikers(source: Osnova.Entry.EntriesResponse | undefined) {
   );
   const [cLikers, setCLikers] = useState<UseLikersData>(undefined);
   const likers = useLikers(source, cLikers, setCurrentId);
-
-  useEffect(() => {}, [currentId]);
 
   return likers;
 }
