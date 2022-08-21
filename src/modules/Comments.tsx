@@ -12,10 +12,13 @@ import ActivityCharts from "components/chart/Activity";
 import CommentCard from "components/scope/CommentCard";
 import RatingView from "components/scope/RatingView";
 import StatCat from "components/scope/StatCat";
-import { useMemo } from "react";
+import { useApi } from "hooks/useFetch";
+import useLikers, { UseLikersData } from "hooks/useLikers";
+import { useMemo, useState } from "react";
 import { Osnova } from "types/osnova";
 import { getStats } from "utils/charts";
 import { getRating } from "utils/rating";
+import Rating from "./Rating";
 
 function Comments({
   data,
@@ -47,6 +50,16 @@ function Comments({
     return result;
   }, [data]);
 
+  const [likerId, setLikerId] = useState<string | number | undefined>(
+    undefined
+  );
+  const { data: cLikers } = useApi<UseLikersData>(
+    `/comment/likers/${likerId}`,
+    undefined,
+    "1.9"
+  );
+  const likers = useLikers(data, cLikers, setLikerId);
+
   const options = useConst({ plugins: { legend: { display: false } } });
   const commentDatasetOptions = useConst({
     borderColor: "rgb(49,130,206)",
@@ -61,6 +74,7 @@ function Comments({
       <TabList>
         <Tab>Статистика</Tab>
         <Tab>Активность</Tab>
+        <Tab>Оценки</Tab>
       </TabList>
       <TabPanels>
         <TabPanel>
@@ -91,6 +105,9 @@ function Comments({
         </TabPanel>
         <TabPanel>
           <ActivityCharts data={charts} options={options} />
+        </TabPanel>
+        <TabPanel>
+          <Rating {...likers} />
         </TabPanel>
       </TabPanels>
     </Tabs>

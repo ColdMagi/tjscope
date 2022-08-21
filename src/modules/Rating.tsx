@@ -11,19 +11,18 @@ import {
 import RatingByUser from "components/scope/Stat/RatingByUser";
 import Likers from "components/scope/likers/Likers";
 import { addMilliseconds, formatDistance } from "date-fns";
-import useLikers, { UseLikersIdSource } from "hooks/useLikers";
+import type useLikers from "hooks/useLikers";
 
-interface RatingProps {
-  source: UseLikersIdSource;
-  target: string;
-}
+interface RatingProps extends ReturnType<typeof useLikers> {}
 
-function Rating({ source, target }: RatingProps) {
-  const { loading, loaded, size, data, stats, timeoutTime } = useLikers(
-    source,
-    target
-  );
-
+function Rating({
+  loading,
+  loaded,
+  size,
+  data,
+  stats,
+  timeoutTime,
+}: RatingProps) {
   return (
     <VStack position="relative" w="100%">
       {loading && (

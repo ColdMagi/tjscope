@@ -1,7 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import type { Osnova } from "types/osnova";
 import { calcLikers } from "utils/rating";
-import { useApi } from "./useFetch";
 
 const timeoutTime = 400;
 
@@ -9,7 +8,15 @@ export type UseLikersIdSource =
   | { result: { id: number | string }[] }
   | undefined;
 
-function useLikers(idSource: UseLikersIdSource, target: string) {
+export type UseLikersNext = (id: string | number) => void;
+
+export type UseLikersData = Osnova.Comment.LikersResponse | undefined;
+
+function useLikers(
+  idSource: UseLikersIdSource,
+  data: UseLikersData,
+  next: UseLikersNext
+) {
   const worker = useMemo(
     () =>
       Worker &&
@@ -21,12 +28,6 @@ function useLikers(idSource: UseLikersIdSource, target: string) {
   );
   const [likers, setLikers] = useState<Osnova.Likers.Likers>({});
   const [index, setIndex] = useState(0);
-
-  const { data } = useApi<Osnova.Comment.LikersResponse>(
-    `/${target}/likers/${(idSource?.result || [])[index]?.id}`,
-    undefined,
-    "1.9"
-  );
 
   const stats = useMemo(() => {
     const result = {
@@ -48,6 +49,10 @@ function useLikers(idSource: UseLikersIdSource, target: string) {
     }
     return result;
   }, [likers]);
+
+  useEffect(() => {
+    next((idSource?.result || [])[index]?.id);
+  }, [next, idSource, index]);
 
   useEffect(() => {
     if (!data) return;
