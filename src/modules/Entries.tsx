@@ -15,10 +15,13 @@ import ActivityCharts from "components/chart/Activity";
 import EntryCard from "components/scope/EntryCard";
 import RatingView from "components/scope/RatingView";
 import StatCat from "components/scope/StatCat";
-import { useMemo } from "react";
+import { useApi } from "hooks/useFetch";
+import useLikers, { UseLikersData } from "hooks/useLikers";
+import { useMemo, useState } from "react";
 import { Osnova } from "types/osnova";
 import { getStats } from "utils/charts";
 import { getRating } from "utils/rating";
+import Rating from "./Rating";
 
 function Entries({ data }: { data: Osnova.Entry.EntriesResponse | undefined }) {
   const stats = useMemo(() => {
@@ -56,6 +59,16 @@ function Entries({ data }: { data: Osnova.Entry.EntriesResponse | undefined }) {
     return result;
   }, [data]);
 
+  const [likerId, setLikerId] = useState<string | number | undefined>(
+    undefined
+  );
+  const { data: cLikers } = useApi<UseLikersData>(
+    `/entry/likers/${likerId}`,
+    undefined,
+    "1.9"
+  );
+  const likers = useLikers(data, cLikers, setLikerId);
+
   const options = useConst({ plugins: { legend: { display: false } } });
   const entryDatasetOptions = useConst({
     borderColor: "rgb(237,137,54)",
@@ -66,10 +79,27 @@ function Entries({ data }: { data: Osnova.Entry.EntriesResponse | undefined }) {
   const charts = getStats(data || {}, entryDatasetOptions);
 
   return (
-    <Tabs variant={"enclosed"} isFitted w="100%">
-      <TabList w="100%">
+    <Tabs
+      variant={"soft-rounded"}
+      size={{ base: "sm", md: "md" }}
+      maxW="100%"
+      w="100%"
+      colorScheme="orange"
+    >
+      <TabList
+        minW="0"
+        maxW="100%"
+        overflowX="auto"
+        sx={{
+          scrollbarWidth: "none",
+          "::-webkit-scrollbar": { display: "none" },
+          WebkitOverflowScrolling: "touch",
+        }}
+        px="1"
+      >
         <Tab>Статистика</Tab>
         <Tab>Активность</Tab>
+        <Tab>Оценки</Tab>
       </TabList>
       <TabPanels w="100%">
         <TabPanel>
@@ -117,6 +147,9 @@ function Entries({ data }: { data: Osnova.Entry.EntriesResponse | undefined }) {
         </TabPanel>
         <TabPanel>
           <ActivityCharts data={charts} options={options} />
+        </TabPanel>
+        <TabPanel>
+          <Rating {...likers} />
         </TabPanel>
       </TabPanels>
     </Tabs>
