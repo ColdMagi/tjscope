@@ -50,15 +50,15 @@ function Comments({
     return result;
   }, [data]);
 
-  const [likerId, setLikerId] = useState<string | number | undefined>(
+  const [currentId, setCurrentId] = useState<string | number | undefined>(
     undefined
   );
   const { data: cLikers } = useApi<UseLikersData>(
-    `/comment/likers/${likerId}`,
+    `/comment/likers/${currentId}`,
     undefined,
     "1.9"
   );
-  const likers = useLikers(data, cLikers, setLikerId);
+  const likers = useLikers(data, cLikers, setCurrentId);
 
   const options = useConst({ plugins: { legend: { display: false } } });
   const commentDatasetOptions = useConst({
