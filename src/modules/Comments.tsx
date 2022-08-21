@@ -62,8 +62,8 @@ function Comments({
 
   const options = useConst({ plugins: { legend: { display: false } } });
   const commentDatasetOptions = useConst({
-    borderColor: "rgb(49,130,206)",
-    backgroundColor: "rgba(49,130,206,0.4)",
+    borderColor: "rgb(56,178,172)",
+    backgroundColor: "rgba(56,178,172,0.4)",
     borderWidth: 1,
   });
 
