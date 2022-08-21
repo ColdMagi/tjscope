@@ -15,13 +15,21 @@ import ActivityCharts from "components/chart/Activity";
 import EntryCard from "components/scope/EntryCard";
 import RatingView from "components/scope/RatingView";
 import StatCat from "components/scope/StatCat";
-import { useApi } from "hooks/useFetch";
 import useLikers, { UseLikersData } from "hooks/useLikers";
 import { useMemo, useState } from "react";
 import { Osnova } from "types/osnova";
 import { getStats } from "utils/charts";
 import { getRating } from "utils/rating";
 import Rating from "./Rating";
+
+function useEntriesLikers(source: Osnova.Entry.EntriesResponse | undefined) {
+  const [likerId, setLikerId] = useState<string | number | undefined>(
+    undefined
+  );
+  const [cLikers, setCLikers] = useState<UseLikersData>(undefined);
+  const likers = useLikers(source, cLikers, setLikerId);
+  return likers;
+}
 
 function Entries({ data }: { data: Osnova.Entry.EntriesResponse | undefined }) {
   const stats = useMemo(() => {
@@ -59,15 +67,7 @@ function Entries({ data }: { data: Osnova.Entry.EntriesResponse | undefined }) {
     return result;
   }, [data]);
 
-  const [likerId, setLikerId] = useState<string | number | undefined>(
-    undefined
-  );
-  const { data: cLikers } = useApi<UseLikersData>(
-    `/entry/likers/${likerId}`,
-    undefined,
-    "1.9"
-  );
-  const likers = useLikers(data, cLikers, setLikerId);
+  const likers = useEntriesLikers(data);
 
   const options = useConst({ plugins: { legend: { display: false } } });
   const entryDatasetOptions = useConst({
